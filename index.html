@@ -1411,9 +1411,13 @@ function showSection(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.sub-btn').forEach(b=>b.classList.remove('active'));
   const sec = document.getElementById(id);
-  if(sec){ sec.classList.add('active'); }
+  if(!sec){ console.warn('Section not found:', id); return; }
+  sec.classList.add('active');
   const btn = document.querySelector('[data-sid="'+id+'"]');
   if(btn) btn.classList.add('active');
+  // Scroll to top of content
+  var mc = document.getElementById('mainContent');
+  if(mc) mc.scrollTop = 0;
   // Fill table by explicit mapping
   const tmap = {
     'prod-conso-pp':   'tbl-conso-pp',
@@ -1445,9 +1449,20 @@ function showSection(id){
     'energie-solaire': 'tbl-solaire',
     'energie-parc':    'tbl-parc',
   };
-  if(tmap[id]) fillTable(tmap[id]);
+  // Fill table immediately
+  var tid = tmap[id];
+  if(tid){
+    fillTable(tid);
+    // If still empty after fill, try again after a short delay
+    setTimeout(function(){
+      var tbody = document.getElementById(tid+'-tbody');
+      if(tbody && (!tbody.children.length || tbody.innerHTML.indexOf('Aucune') >= 0)){
+        fillTable(tid);
+      }
+    }, 300);
+  }
   // Draw charts after render
-  setTimeout(function(){ requestAnimationFrame(function(){ renderCharts(id); }); }, 150);
+  setTimeout(function(){ renderCharts(id); }, 200);
 }
 
 function buildSubNav(key){
@@ -1888,6 +1903,7 @@ async function syncAll(){
         var activeNow = document.querySelector('.section.active');
         if(activeNow && allTmap[activeNow.id] === tid){
           fillTable(tid);
+          setTimeout(function(){ renderCharts(activeNow.id); }, 100);
         }
       }
     } catch(e){
@@ -1905,12 +1921,13 @@ async function syncAll(){
   // Refresh ALL sections that have been updated
   var active = document.querySelector('.section.active');
   if(ok > 0){
-    // Refill active section immediately
-    if(active){
-      var tid_active = allTmap[active.id];
-      if(tid_active && TD[tid_active] && TD[tid_active].length > 0){
-        fillTable(tid_active);
-        setTimeout(function(){ renderCharts(active.id); }, 100);
+    // Re-fill whatever section is currently active
+    var activeSec = document.querySelector('.section.active');
+    if(activeSec){
+      var tidNow = allTmap[activeSec.id];
+      if(tidNow && TD[tidNow] && TD[tidNow].length > 0){
+        fillTable(tidNow);
+        setTimeout(function(){ renderCharts(activeSec.id); }, 150);
       }
     }
     // Update status
