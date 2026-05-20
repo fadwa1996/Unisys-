@@ -718,7 +718,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PP</div>
 <div class="page-sub">Bilan mensuel de production PP</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PP</div><div class="metric-val accent">6</div><div class="metric-sub">Bandelette, Fil, Ficelle, Corde...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
+<div class="metrics"><div class="metric"><div class="metric-label">Produits PP</div><div class="metric-val accent">6</div><div class="metric-sub">Bandelette, Fil, Ficelle, Corde...</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PP</div>
@@ -737,7 +737,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PE</div>
 <div class="page-sub">Bilan mensuel de production PE</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PE</div><div class="metric-val accent">5</div><div class="metric-sub">Emballage, Cristal, Paillage...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
+<div class="metrics"><div class="metric"><div class="metric-label">Produits PE</div><div class="metric-val accent">5</div><div class="metric-sub">Emballage, Cristal, Paillage...</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PE</div>
@@ -1276,7 +1276,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Transformateurs</div><div class="metric-val blue" id="transfo-total">—</div><div class="metric-sub">TGBT 1 et TGBT 2</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="transfo-params">—</div><div class="metric-sub">caractéristiques relevées</div></div>
-  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
+  
 </div>
 <div class="card">
   <div class="tbl-header">
@@ -1299,7 +1299,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Puissance installée</div><div class="metric-val blue" id="sol-puissance">111.3 kWc</div><div class="metric-sub">installation photovoltaïque</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="sol-params">—</div><div class="metric-sub">données techniques</div></div>
-  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
+  
 </div><div class="card"><div class="card-title">Paramètres installation solaire</div><div class="chart-wrap"><canvas id="ch-solaire"></canvas></div></div>
 <div class="card">
   <div class="tbl-header">
@@ -1497,11 +1497,6 @@ var RUBRIQUES = {
 
 // ── CONFIGURATION SYNC ────────────────────────────────────────
 var APPS_URL = (function(){
-  // Sur Netlify: utiliser le proxy /api/sync (évite CORS)
-  // En local: utiliser l'URL directe
-  if(window.location.protocol==='https:'&&window.location.hostname!=='localhost'){
-    return '/api/sync';
-  }
   return 'https://script.google.com/macros/s/AKfycbwoZPphQJUbvFTHQPn3Xmk3X0ctLqI3Tvgvc7NymVlIPE2RMblYW1g9BTFya4mT7VDO/exec';
 })();
 var SYNC_SECRET = 'UNISYS2026';
@@ -3584,9 +3579,7 @@ window.addEventListener('load',function(){
 
   </div>
 
-  <button class="welcome-enter-btn" onclick="enterDashboard()">
-    Accéder au Dashboard Corderies de la Koutoubia →
-  </button>
+
 <div class="tbl-wrap"><table class="data-table"><thead><tr id="tbl-inv-mp-pf-head"></tr></thead><tbody id="tbl-inv-mp-pf-body"><tr><td colspan="20" class="tbl-empty">Chargement...</td></tr></tbody></table></div>
 
 </div>
