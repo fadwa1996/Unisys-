@@ -2960,13 +2960,18 @@ function updateMetrics(sid){
     var rdpp=get('tbl-dpp').filter(function(r){return normNum(r[3])>0;});
     var totalDpp=rdpp.reduce(function(a,r){return a+normNum(r[3]);},0);
     // Mois actifs
-    var moisPP=new Set(rpp.map(function(r){
-      var d=String(r[0]||''); return d.length>=7?d.slice(0,7):'';
-    }).filter(Boolean));
+    // Semaines = plage de dates / 7
+    var datesPP=rpp.map(function(r){return new Date(r[0]);}).filter(function(d){return !isNaN(d);});
+    var semsPP='—';
+    if(datesPP.length>1){
+      var minD=new Date(Math.min.apply(null,datesPP));
+      var maxD=new Date(Math.max.apply(null,datesPP));
+      semsPP=Math.ceil((maxD-minD)/(7*24*3600*1000))+1;
+    }
     setMetric('pp-conso-total', (totalPP/1000).toFixed(1)+' t');
     setMetric('pp-dechets-total', (totalDpp/1000).toFixed(1)+' t');
     setMetric('pp-jours', rpp.length);
-    setMetric('pp-semaines', moisPP.size||'—');
+    setMetric('pp-semaines', semsPP);
   }
 
   // ── Conso PE ──
@@ -2980,14 +2985,18 @@ function updateMetrics(sid){
     var lldpe=rpe.reduce(function(a,r){return a+normNum(r[5]);},0);
     var rdpe=get('tbl-dpe').filter(function(r){return normNum(r[3])>0;});
     var totalDpe=rdpe.reduce(function(a,r){return a+normNum(r[3]);},0);
-    // Calculer les mois actifs depuis la date r[0]
-    var moisPE=new Set(rpe.map(function(r){
-      var d=String(r[0]||''); return d.length>=7?d.slice(0,7):'';
-    }).filter(Boolean));
+    // Semaines = plage de dates / 7
+    var datesPE=rpe.map(function(r){return new Date(r[0]);}).filter(function(d){return !isNaN(d);});
+    var semsPE='—';
+    if(datesPE.length>1){
+      var minE=new Date(Math.min.apply(null,datesPE));
+      var maxE=new Date(Math.max.apply(null,datesPE));
+      semsPE=Math.ceil((maxE-minE)/(7*24*3600*1000))+1;
+    }
     setMetric('pe-conso-total', (totalPE/1000).toFixed(1)+' t');
     setMetric('pe-lldpe-total', (lldpe/1000).toFixed(1)+' t');
     setMetric('pe-jours', rpe.length);
-    setMetric('pe-semaines', moisPE.size||'—');
+    setMetric('pe-semaines', semsPE);
   }
 
   // ── Nakhla ──
