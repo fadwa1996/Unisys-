@@ -2960,7 +2960,9 @@ function updateMetrics(sid){
     var rdpp=get('tbl-dpp').filter(function(r){return normNum(r[3])>0;});
     var totalDpp=rdpp.reduce(function(a,r){return a+normNum(r[3]);},0);
     // Mois actifs
-    var moisPP=new Set(rpp.map(function(r){return String(r[1]||'').slice(0,7);}).filter(Boolean));
+    var moisPP=new Set(rpp.map(function(r){
+      var d=String(r[0]||''); return d.length>=7?d.slice(0,7):'';
+    }).filter(Boolean));
     setMetric('pp-conso-total', (totalPP/1000).toFixed(1)+' t');
     setMetric('pp-dechets-total', (totalDpp/1000).toFixed(1)+' t');
     setMetric('pp-jours', rpp.length);
@@ -2978,7 +2980,10 @@ function updateMetrics(sid){
     var lldpe=rpe.reduce(function(a,r){return a+normNum(r[5]);},0);
     var rdpe=get('tbl-dpe').filter(function(r){return normNum(r[3])>0;});
     var totalDpe=rdpe.reduce(function(a,r){return a+normNum(r[3]);},0);
-    var moisPE=new Set(rpe.map(function(r){return String(r[1]||'').slice(0,7);}).filter(Boolean));
+    // Calculer les mois actifs depuis la date r[0]
+    var moisPE=new Set(rpe.map(function(r){
+      var d=String(r[0]||''); return d.length>=7?d.slice(0,7):'';
+    }).filter(Boolean));
     setMetric('pe-conso-total', (totalPE/1000).toFixed(1)+' t');
     setMetric('pe-lldpe-total', (lldpe/1000).toFixed(1)+' t');
     setMetric('pe-jours', rpe.length);
@@ -3025,11 +3030,7 @@ function updateMetrics(sid){
     setMetric('prod-familles', fams.size);
   }
 
-  // ── Accidents ──
-  if(sid==='qhse-accidents'){
-    var rows=get('tbl-accidents');
-    setMetric('acc-benevoles', rows.length);
-  }
+  // ── Accidents ── (calcul complet ci-dessous)
 
   // ── Sécurité ──
   if(sid==='qhse-securite'){
@@ -3042,9 +3043,16 @@ function updateMetrics(sid){
   // ── Factures ──
   if(sid==='energie-factures'){
     var rows=get('tbl-factures');
-    var elec=rows.filter(function(r){return String(r[1]||'').toLowerCase().includes('total');}).length;
-    setMetric('fact-elec', elec);
-    setMetric('fact-eau', elec);
+    var total=rows.length;
+    var montant=rows.reduce(function(a,r){return a+normNum(r[3]||r[2]||0);},0);
+    var conso=rows.reduce(function(a,r){return a+normNum(r[4]||0);},0);
+    var mois=new Set(rows.map(function(r){return String(r[0]||'').slice(0,7);}).filter(Boolean)).size;
+    setMetric('fact-total', total);
+    setMetric('fact-montant', Math.round(montant).toLocaleString('fr-FR')+' DH');
+    setMetric('fact-conso', Math.round(conso).toLocaleString('fr-FR')+' kWh');
+    setMetric('fact-mois', mois+' mois');
+    setMetric('fact-elec', total);
+    setMetric('fact-eau', mois);
   }
 
 // ── PP Machine ──
@@ -3065,7 +3073,7 @@ function updateMetrics(sid){
     var tot2=rpe.reduce(function(a,r){return a+(parseFloat(String(r[1]||0).replace(',','.'))||0);},0);
     var moy2=rpe.length?tot2/rpe.length:0;
     setMetric('pem-total', (tot2/1000).toFixed(1)+' t');
-    setMetric('pem-lignes', 4);
+    setMetric('pem-lignes', rpe.length);
     setMetric('pem-jours', rpe.length);
     setMetric('pem-moy', Math.round(moy2).toLocaleString('fr-FR')+' kg');
   }
@@ -3251,25 +3259,27 @@ function updateMetrics(sid){
 
   // ── Déchets PP ──
   if(sid==='qhse-dechets-pp'){
-    var rdp=get('tbl-dpp').filter(function(r){return r[5]||r[3];});
-    var poids=rdp.reduce(function(a,r){return a+(parseFloat(String(r[5]||r[3]||0).replace(',','.'))||0);},0);
-    var machs=new Set(rdp.map(function(r){return String(r[4]||'');})).size;
-    var sems=new Set(rdp.map(function(r){return String(r[2]||'');})).size;
+    // r=[mois, sem, date, poids]
+    var rdp=get('tbl-dpp').filter(function(r){return normNum(r[3])>0;});
+    var poids=rdp.reduce(function(a,r){return a+normNum(r[3]);},0);
+    var sems=new Set(rdp.map(function(r){return String(r[1]||'');}).filter(function(s){return s&&s!=='';})).size;
+    var mois=new Set(rdp.map(function(r){return String(r[0]||'').slice(0,7);}).filter(Boolean)).size;
     setMetric('dpp-total', rdp.length);
-    setMetric('dpp-poids', Math.round(poids).toLocaleString('fr-FR'));
-    setMetric('dpp-machines', machs);
+    setMetric('dpp-poids', Math.round(poids).toLocaleString('fr-FR')+' kg');
+    setMetric('dpp-machines', mois+' mois');
     setMetric('dpp-semaines', sems);
   }
 
   // ── Déchets PE ──
   if(sid==='qhse-dechets-pe'){
-    var rdpe2=get('tbl-dpe').filter(function(r){return r[5]||r[3];});
-    var poidspe=rdpe2.reduce(function(a,r){return a+(parseFloat(String(r[5]||r[3]||0).replace(',','.'))||0);},0);
-    var machspe=new Set(rdpe2.map(function(r){return String(r[4]||'');})).size;
-    var semspe=new Set(rdpe2.map(function(r){return String(r[2]||'');})).size;
+    // r=[mois, sem, date, poids]
+    var rdpe2=get('tbl-dpe').filter(function(r){return normNum(r[3])>0;});
+    var poidspe=rdpe2.reduce(function(a,r){return a+normNum(r[3]);},0);
+    var semspe=new Set(rdpe2.map(function(r){return String(r[1]||'');}).filter(function(s){return s&&s!=='';})).size;
+    var moispe=new Set(rdpe2.map(function(r){return String(r[0]||'').slice(0,7);}).filter(Boolean)).size;
     setMetric('dpe-total', rdpe2.length);
-    setMetric('dpe-poids', Math.round(poidspe).toLocaleString('fr-FR'));
-    setMetric('dpe-machines', machspe);
+    setMetric('dpe-poids', Math.round(poidspe).toLocaleString('fr-FR')+' kg');
+    setMetric('dpe-machines', moispe+' mois');
     setMetric('dpe-semaines', semspe);
   }
 
