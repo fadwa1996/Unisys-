@@ -671,7 +671,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-title">Consommation MP PP</div>
 <div class="page-sub">Suivi journalier des matières premières polypropylène</div>
 <div class="metrics">
-  <div class="metric"><div class="metric-label">Conso MP PP 2025</div><div class="metric-val blue" id="pp-conso-total">—</div><div class="metric-sub">matières premières consommées</div></div>
+  <div class="metric"><div class="metric-label">Consommation totale PP</div><div class="metric-val blue" id="pp-conso-total">—</div><div class="metric-sub">matières premières consommées</div></div>
   <div class="metric"><div class="metric-label">Déchets PP</div><div class="metric-val orange" id="pp-dechets-total">—</div><div class="metric-sub">déchets production PP</div></div>
   <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="pp-jours">—</div><div class="metric-sub">entrées journalières</div></div>
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="pp-semaines">—</div><div class="metric-sub">semaines de suivi</div></div>
@@ -695,8 +695,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-title">Consommation MP PE</div>
 <div class="page-sub">Suivi journalier des matières premières polyéthylène</div>
 <div class="metrics">
-  <div class="metric"><div class="metric-label">Conso MP PE 2025</div><div class="metric-val blue" id="pe-conso-total">—</div><div class="metric-sub">matières premières consommées</div></div>
-  <div class="metric"><div class="metric-label">LLDPE</div><div class="metric-val orange" id="pe-lldpe-total">—</div><div class="metric-sub">consommation LLDPE</div></div>
+  <div class="metric"><div class="metric-label">Consommation totale PE</div><div class="metric-val blue" id="pe-conso-total">—</div><div class="metric-sub">matières premières consommées</div></div>
+  <div class="metric"><div class="metric-label">dont LLDPE</div><div class="metric-val orange" id="pe-lldpe-total">—</div><div class="metric-sub">consommation LLDPE</div></div>
   <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="pe-jours">—</div><div class="metric-sub">entrées journalières</div></div>
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="pe-semaines">—</div><div class="metric-sub">semaines de suivi</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Consommation PE mensuelle</div><div class="chart-wrap"><canvas id="ch-conso-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-conso-pe-pie"></canvas></div></div></div>
@@ -718,7 +718,12 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PP</div>
 <div class="page-sub">Bilan mensuel de production PP</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PP</div><div class="metric-val accent">6</div><div class="metric-sub">Bandelette, Fil, Ficelle, Corde...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
+<div class="metrics">
+  <div class="metric"><div class="metric-label">Production totale</div><div class="metric-val accent" id="pfpp-total">—</div><div class="metric-sub">kg produits finis PP</div></div>
+  <div class="metric"><div class="metric-label">Meilleur mois</div><div class="metric-val green" id="pfpp-best">—</div><div class="metric-sub">production max</div></div>
+  <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="pfpp-jours">—</div><div class="metric-sub">relevés de production</div></div>
+  <div class="metric"><div class="metric-label">Moy. journalière</div><div class="metric-val" id="pfpp-moy">—</div><div class="metric-sub">kg / jour</div></div>
+</div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PP</div>
@@ -737,7 +742,12 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PE</div>
 <div class="page-sub">Bilan mensuel de production PE</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PE</div><div class="metric-val accent">5</div><div class="metric-sub">Emballage, Cristal, Paillage...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
+<div class="metrics">
+  <div class="metric"><div class="metric-label">Production totale</div><div class="metric-val accent" id="pfpe-total">—</div><div class="metric-sub">kg produits finis PE</div></div>
+  <div class="metric"><div class="metric-label">Meilleur mois</div><div class="metric-val green" id="pfpe-best">—</div><div class="metric-sub">production max</div></div>
+  <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="pfpe-jours">—</div><div class="metric-sub">relevés de production</div></div>
+  <div class="metric"><div class="metric-label">Moy. journalière</div><div class="metric-val" id="pfpe-moy">—</div><div class="metric-sub">kg / jour</div></div>
+</div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PE</div>
@@ -1076,7 +1086,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-title">Déchets PP</div>
 <div class="page-sub">Suivi des déchets polypropylène</div>
 <div class="metrics">
-  <div class="metric"><div class="metric-label">Total enregistrements</div><div class="metric-val blue" id="dpp-total">—</div><div class="metric-sub">relevés déchets PP</div></div>
+  <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="dpp-total">—</div><div class="metric-sub">relevés déchets PP</div></div>
   <div class="metric"><div class="metric-label">Poids total (kg)</div><div class="metric-val orange" id="dpp-poids">—</div><div class="metric-sub">déchets générés</div></div>
   <div class="metric"><div class="metric-label">Machines</div><div class="metric-val blue" id="dpp-machines">—</div><div class="metric-sub">sources de déchets</div></div>
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="dpp-semaines">—</div><div class="metric-sub">suivi hebdomadaire</div></div>
@@ -1100,7 +1110,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-title">Déchets PE</div>
 <div class="page-sub">Suivi des déchets polyéthylène</div>
 <div class="metrics">
-  <div class="metric"><div class="metric-label">Total enregistrements</div><div class="metric-val blue" id="dpe-total">—</div><div class="metric-sub">relevés déchets PE</div></div>
+  <div class="metric"><div class="metric-label">Jours enregistrés</div><div class="metric-val blue" id="dpe-total">—</div><div class="metric-sub">relevés déchets PE</div></div>
   <div class="metric"><div class="metric-label">Poids total (kg)</div><div class="metric-val orange" id="dpe-poids">—</div><div class="metric-sub">déchets générés</div></div>
   <div class="metric"><div class="metric-label">Machines</div><div class="metric-val blue" id="dpe-machines">—</div><div class="metric-sub">sources de déchets</div></div>
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="dpe-semaines">—</div><div class="metric-sub">suivi hebdomadaire</div></div>
@@ -1276,7 +1286,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Transformateurs</div><div class="metric-val blue" id="transfo-total">—</div><div class="metric-sub">TGBT 1 et TGBT 2</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="transfo-params">—</div><div class="metric-sub">caractéristiques relevées</div></div>
-  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
+  
 </div>
 <div class="card">
   <div class="tbl-header">
@@ -1299,7 +1309,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Puissance installée</div><div class="metric-val blue" id="sol-puissance">111.3 kWc</div><div class="metric-sub">installation photovoltaïque</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="sol-params">—</div><div class="metric-sub">données techniques</div></div>
-  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
+  
 </div><div class="card"><div class="card-title">Paramètres installation solaire</div><div class="chart-wrap"><canvas id="ch-solaire"></canvas></div></div>
 <div class="card">
   <div class="tbl-header">
@@ -1392,10 +1402,10 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-title">Inventaire MP/PF</div>
 <div class="page-sub">Inventaire des matières premières et produits finis</div>
 <div class="metrics">
-  <div class="metric"><div class="metric-label">Entrées inventaire</div><div class="metric-val blue" id="invmpf-total">—</div><div class="metric-sub">relevés MP/PF</div></div>
+  <div class="metric"><div class="metric-label">Lignes inventaire</div><div class="metric-val blue" id="invmpf-total">—</div><div class="metric-sub">relevés MP/PF</div></div>
   <div class="metric"><div class="metric-label">Produits distincts</div><div class="metric-val blue" id="invmpf-prods">—</div><div class="metric-sub">références</div></div>
   <div class="metric"><div class="metric-label">Poids total (kg)</div><div class="metric-val orange" id="invmpf-poids">—</div><div class="metric-sub">stock total</div></div>
-  <div class="metric"><div class="metric-label">En tonnes</div><div class="metric-val" id="invmpf-tonnes">—</div><div class="metric-sub">tonnes</div></div>
+  <div class="metric"><div class="metric-label">En tonnes</div><div class="metric-val accent" id="invmpf-tonnes">—</div><div class="metric-sub">tonnes</div></div>
 
 
 <div class="rubrique" id="rub-admin">
@@ -2798,6 +2808,45 @@ function setMetric(id, val){
 
 function updateMetrics(sid){
   var get=function(tid){return TD[tid]||[];};
+
+  // ── Production Finale PP ──
+  if(sid==='prod-prod-pp'){
+    var rpp2=get('tbl-prod-pp').filter(function(r){return r[1]||r[2];});
+    var totalPFPP=rpp2.reduce(function(a,r){
+      var s=0; for(var i=1;i<r.length;i++) s+=normNum(r[i]); return a+s;
+    },0);
+    var moyPFPP=rpp2.length?totalPFPP/rpp2.length:0;
+    // Meilleur mois
+    var moisPP={};
+    rpp2.forEach(function(r){
+      var m=String(r[0]||'').slice(0,7);
+      if(m) moisPP[m]=(moisPP[m]||0)+normNum(r[1]);
+    });
+    var bestPP=Object.keys(moisPP).sort(function(a,b){return moisPP[b]-moisPP[a];})[0]||'—';
+    setMetric('pfpp-total', Math.round(totalPFPP).toLocaleString('fr-FR')+' kg');
+    setMetric('pfpp-best', bestPP);
+    setMetric('pfpp-jours', rpp2.length);
+    setMetric('pfpp-moy', Math.round(moyPFPP).toLocaleString('fr-FR')+' kg');
+  }
+
+  // ── Production Finale PE ──
+  if(sid==='prod-prod-pe'){
+    var rpe2=get('tbl-prod-pe').filter(function(r){return r[1]||r[2];});
+    var totalPFPE=rpe2.reduce(function(a,r){
+      var s=0; for(var i=1;i<r.length;i++) s+=normNum(r[i]); return a+s;
+    },0);
+    var moyPFPE=rpe2.length?totalPFPE/rpe2.length:0;
+    var moisPE={};
+    rpe2.forEach(function(r){
+      var m=String(r[0]||'').slice(0,7);
+      if(m) moisPE[m]=(moisPE[m]||0)+normNum(r[1]);
+    });
+    var bestPE=Object.keys(moisPE).sort(function(a,b){return moisPE[b]-moisPE[a];})[0]||'—';
+    setMetric('pfpe-total', Math.round(totalPFPE).toLocaleString('fr-FR')+' kg');
+    setMetric('pfpe-best', bestPE);
+    setMetric('pfpe-jours', rpe2.length);
+    setMetric('pfpe-moy', Math.round(moyPFPE).toLocaleString('fr-FR')+' kg');
+  }
 
   // ── Conso PP ──
   if(sid==='prod-conso-pp'){
