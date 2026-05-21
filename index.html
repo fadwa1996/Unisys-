@@ -718,7 +718,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PP</div>
 <div class="page-sub">Bilan mensuel de production PP</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PP</div><div class="metric-val accent">6</div><div class="metric-sub">Bandelette, Fil, Ficelle, Corde...</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
+<div class="metrics"><div class="metric"><div class="metric-label">Produits PP</div><div class="metric-val accent">6</div><div class="metric-sub">Bandelette, Fil, Ficelle, Corde...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PP mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pp"></canvas></div></div><div class="card"><div class="card-title">Répartition produits</div><div class="chart-wrap"><canvas id="ch-prod-pp-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PP</div>
@@ -737,7 +737,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="breadcrumb">Production › Production</div>
 <div class="page-title">Production Finale PE</div>
 <div class="page-sub">Bilan mensuel de production PE</div>
-<div class="metrics"><div class="metric"><div class="metric-label">Produits PE</div><div class="metric-val accent">5</div><div class="metric-sub">Emballage, Cristal, Paillage...</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
+<div class="metrics"><div class="metric"><div class="metric-label">Produits PE</div><div class="metric-val accent">5</div><div class="metric-sub">Emballage, Cristal, Paillage...</div></div><div class="metric"><div class="metric-label">Source</div><div class="metric-val green">Sheets</div><div class="metric-sub">Synchronisé depuis Google Sheets</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Production PE mensuelle</div><div class="chart-wrap"><canvas id="ch-prod-pe"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-prod-pe-pie"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
     <div class="tbl-title">Production Finale PE</div>
@@ -1276,7 +1276,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Transformateurs</div><div class="metric-val blue" id="transfo-total">—</div><div class="metric-sub">TGBT 1 et TGBT 2</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="transfo-params">—</div><div class="metric-sub">caractéristiques relevées</div></div>
-  
+  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
 </div>
 <div class="card">
   <div class="tbl-header">
@@ -1299,7 +1299,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Puissance installée</div><div class="metric-val blue" id="sol-puissance">111.3 kWc</div><div class="metric-sub">installation photovoltaïque</div></div>
   <div class="metric"><div class="metric-label">Paramètres</div><div class="metric-val blue" id="sol-params">—</div><div class="metric-sub">données techniques</div></div>
-  
+  <div class="metric"><div class="metric-label">Source</div><div class="metric-val orange">Sheets</div><div class="metric-sub">synchronisé</div></div>
 </div><div class="card"><div class="card-title">Paramètres installation solaire</div><div class="chart-wrap"><canvas id="ch-solaire"></canvas></div></div>
 <div class="card">
   <div class="tbl-header">
@@ -3538,8 +3538,8 @@ window.addEventListener('load',function(){
   </div>
 
   <div class="welcome-hero">
-    <h1>Entreprises Marocaines Leaders</h1>
-    <p>Découvrez les entreprises innovantes qui stimulent la croissance industrielle et l'innovation au Maroc</p>
+    <h1 style="font-family:Playfair Display,Georgia,serif;font-weight:700;font-size:clamp(32px,5vw,52px);letter-spacing:.04em;text-transform:uppercase;color:#cdd8e3;margin-bottom:.5rem;">Groupe Benlyamani</h1>
+    <p style="font-family:DM Mono,monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#4a7c9e;margin-top:.25rem;">Plateforme de Pilotage Industriel</p>
   </div>
 
   <div class="welcome-cards">
