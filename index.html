@@ -2481,9 +2481,24 @@ async function syncSheet(tid){
       +'?secret='+encodeURIComponent(SYNC_SECRET)
       +'&id='+encodeURIComponent(cfg.id)
       +'&sheet='+encodeURIComponent(cfg.tab);
-    var res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    var json=await res.json();
+    // JSONP pour contourner CORS avec Google Apps Script
+    var json = await new Promise(function(resolve,reject){
+      var cbName='_cb'+Date.now()+'_'+Math.floor(Math.random()*9999);
+      var script=document.createElement('script');
+      var timer=setTimeout(function(){
+        delete window[cbName];
+        script.remove();
+        reject(new Error('JSONP timeout'));
+      },15000);
+      window[cbName]=function(data){
+        clearTimeout(timer);
+        delete window[cbName];
+        script.remove();
+        resolve(data);
+      };
+      script.src=url+'&callback='+cbName;
+      document.head.appendChild(script);
+    });
     if(!json||json.error){
       console.warn('sync err',tid,json&&json.error);
       return false;
