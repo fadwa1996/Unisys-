@@ -2370,7 +2370,10 @@ function normDate(v){
 function normNum(v){
   if(v===''||v===null||v===undefined||v==='-') return 0;
   if(typeof v==='number') return v;
-  return parseFloat(String(v).replace(/\s/g,'').replace(',','.')) || 0;
+  var s=String(v).replace(/KGS/gi,'').replace(/[\s\u00a0]/g,'').trim();
+  if(s===''||s==='-') return 0;
+  s=s.replace(',','.');
+  return parseFloat(s)||0;
 }
 
 // ── Transforme les lignes brutes du Sheet selon le tableau ──
@@ -2387,8 +2390,14 @@ function normalizeRows(tid, rawRows){
     rows.forEach(function(r){
       var d=normDate(r[5]||r[3]||'');
       if(!d) return;
-      var row=[d, String(r[3]||'').slice(0,7), String(r[4]||'')];
-      for(var i=6;i<=12;i++) row.push(normNum(r[i]));
+      // Ignorer les lignes hebdo/mensuel (colonnes 12-17 remplies = ligne recap)
+      var isRecap=normNum(r[12])>0||normNum(r[18])>0;
+      if(isRecap) return;
+      var mois=r[3]?normDate(String(r[3]).slice(0,10)):'';
+      var sem=String(r[4]||'');
+      var row=[d, mois||d, sem];
+      for(var i=6;i<=11;i++) row.push(normNum(r[i]));
+      // col 11 = COLORANT pour PE (index 11), total approximatif
       if(row.slice(3).some(function(v){return v>0;})) out.push(row);
     });
     return out;
