@@ -2028,8 +2028,22 @@ function showSection(id){
   // Fill table
   var tid=TMAP[id];
   if(tid){
-    fillTable(tid);
-    // Poll if empty
+    // Si pas encore synced, déclencher sync maintenant
+    if(!SYNCED[tid] && !TD[tid]){
+      setSyncing(true);
+      setSyncStatus('↻ Chargement...');
+      syncOne(tid).then(function(){
+        setSyncing(false);
+        var t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+        setSyncStatus('✓ Synchronisé — '+t,'ok');
+        fillTable(tid);
+        renderCharts(id);
+      });
+    } else {
+      fillTable(tid);
+      setTimeout(function(){renderCharts(id);},300);
+    }
+    // Poll if still empty after sync
     var attempts=0;
     var poll=setInterval(function(){
       attempts++;
@@ -2039,7 +2053,6 @@ function showSection(id){
       if(!isEmpty){ clearInterval(poll); renderCharts(id); return; }
       if(TD[tid]&&TD[tid].length>0) fillTable(tid);
     },500);
-    setTimeout(function(){renderCharts(id);},300);
   }
 }
 
@@ -2109,6 +2122,9 @@ var tblMonths = {};
 var tblSortDir = {};  // 1=asc, -1=desc per table
 var tblSortCol = {};  // sort column index per table
 
+// Forcer tri croissant par date (col 0) par défaut pour toutes les tables
+Object.keys(SYNC_MAP).forEach(function(tid){ tblSortDir[tid]=1; tblSortCol[tid]=0; });
+
 function filterRows(rows,tid,yr){
   var mo = tblMonths[tid]||'all';
   var filtered = rows.filter(function(r){
@@ -2138,25 +2154,29 @@ function filterRows(rows,tid,yr){
     }
     return true;
   });
-  // Apply sort direction
-  var dir = tblSortDir[tid]||1;
-  var col = tblSortCol[tid]||0;
-  if(dir !== 0){
-    filtered = filtered.slice().sort(function(a,b){
-      var va=a[col], vb=b[col];
-      var na=parseFloat(String(va).replace(',','.').replace(/\s/g,'')),
-          nb=parseFloat(String(vb).replace(',','.').replace(/\s/g,''));
-      if(!isNaN(na)&&!isNaN(nb)) return (na-nb)*dir;
-      if(/\d{2}\/\d{2}\/\d{4}/.test(String(va))){
-        var pa=String(va).split('/'), pb=String(vb).split('/');
-        return (new Date(pa[2],pa[1]-1,pa[0]) - new Date(pb[2],pb[1]-1,pb[0]))*dir;
-      }
-      if(/\d{4}-\d{2}-\d{2}/.test(String(va))){
-        return (new Date(va) - new Date(vb))*dir;
-      }
-      return String(va||'').localeCompare(String(vb||''),'fr')*dir;
-    });
-  }
+  // Apply sort direction — toujours tri chronologique par date (col 0)
+  var dir = tblSortDir[tid] !== undefined ? tblSortDir[tid] : 1;
+  var col = tblSortCol[tid] || 0;
+  filtered = filtered.slice().sort(function(a,b){
+    var va = a[col], vb = b[col];
+    // Date ISO (2025-01-01T... ou 2025-01-01)
+    var sa = String(va||''), sb = String(vb||'');
+    if(/\d{4}-\d{2}-\d{2}/.test(sa) && /\d{4}-\d{2}-\d{2}/.test(sb)){
+      var da = new Date(sa), db = new Date(sb);
+      if(!isNaN(da) && !isNaN(db)) return (da - db) * dir;
+    }
+    // Date DD/MM/YYYY
+    if(/\d{2}\/\d{2}\/\d{4}/.test(sa)){
+      var pa=sa.split('/'), pb=sb.split('/');
+      return (new Date(pa[2],pa[1]-1,pa[0]) - new Date(pb[2],pb[1]-1,pb[0])) * dir;
+    }
+    // Numérique
+    var na=parseFloat(sa.replace(/[^0-9.-]/g,'')),
+        nb=parseFloat(sb.replace(/[^0-9.-]/g,''));
+    if(!isNaN(na)&&!isNaN(nb)) return (na-nb)*dir;
+    // Texte
+    return sa.localeCompare(sb,'fr') * dir;
+  });
   return filtered;
 }
 
@@ -2552,43 +2572,60 @@ async function syncSheet(tid){
   }
 }
 
+// Tracks which sheets have been synced
+var SYNCED = {};
+
+// Sync a single table and refresh display
+async function syncOne(tid){
+  if(!SYNC_MAP[tid]) return false;
+  var ok = await syncSheet(tid);
+  if(ok){
+    SYNCED[tid] = true;
+    var active = document.querySelector('.section.active');
+    if(active && TMAP[active.id] === tid){
+      fillTable(tid);
+      renderCharts(active.id);
+      updateMetrics(active.id);
+    }
+  }
+  return ok;
+}
+
+// Sync only the active section + background sync rest quietly
 async function syncAll(){
   setSyncing(true);
   setSyncStatus('↻ Synchronisation...');
-  var ok=0;
-  var tids=Object.keys(SYNC_MAP);
-  // Sync in small batches to avoid rate limits
-  for(var i=0;i<tids.length;i+=4){
-    var batch=tids.slice(i,i+4);
-    var results;
-    try{
-      results=await Promise.all(batch.map(function(t){return syncSheet(t);}));
-    }catch(e){
-      console.warn('Batch sync error:',e);
-      results=batch.map(function(){return false;});
-    }
-    results.forEach(function(r,j){
-      if(r){
-        ok++;
-        var tid=batch[j];
-        var active=document.querySelector('.section.active');
-        if(active&&TMAP[active.id]===tid){
-          fillTable(tid);
-          updateMetrics(active.id);
-        }
-      }
-    });
+
+  // 1. Sync active section first (fast)
+  var active = document.querySelector('.section.active');
+  var activeTid = active ? TMAP[active.id] : null;
+  var firstTids = activeTid ? [activeTid] : [];
+  // Also sync first 2 tabs of current rubrique
+  var allTids = Object.keys(SYNC_MAP);
+  var priorityTids = firstTids.concat(allTids.filter(function(t){ return firstTids.indexOf(t)<0; }).slice(0,2));
+
+  var ok = 0;
+  for(var i=0; i<priorityTids.length; i++){
+    var r = await syncOne(priorityTids[i]);
+    if(r) ok++;
   }
+
+  // Show synced status quickly
+  var t = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   setSyncing(false);
-  var t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  setSyncStatus(ok>0?'✓ Synchronisé — '+t:'⚠ Vérifiez les Sheets',ok>0?'ok':'err');
-  if(ok>0){ showSave('✓ Synchronisé à '+t,'ok'); var als=document.getElementById('admin-last-sync');if(als)als.textContent=t; } else { showSave('⚠ Échec de synchronisation','err'); }
+  setSyncStatus(ok>0?'✓ Synchronisé — '+t:'⚠ Vérifiez les Sheets', ok>0?'ok':'err');
   if(ok>0){ showSave('✓ Synchronisé à '+t,'ok'); } else { showSave('⚠ Échec de synchronisation','err'); }
-  // Update admin last sync time
-  var als=document.getElementById('admin-last-sync');
-  if(als) als.textContent=t;
-  var active=document.querySelector('.section.active');
-  if(active&&ok>0){var tid2=TMAP[active.id];if(tid2){fillTable(tid2);renderCharts(active.id);}}
+  var als=document.getElementById('admin-last-sync'); if(als) als.textContent=t;
+
+  // 2. Background sync remaining sheets (silent, no UI update)
+  var remaining = allTids.filter(function(t){ return priorityTids.indexOf(t)<0; });
+  setTimeout(async function(){
+    for(var i=0; i<remaining.length; i+=3){
+      var batch = remaining.slice(i,i+3);
+      await Promise.all(batch.map(function(tid){ return syncOne(tid); }));
+      await new Promise(function(r){ setTimeout(r, 500); });
+    }
+  }, 1000);
 }
 
 function refreshAll(){ syncAll(); }
