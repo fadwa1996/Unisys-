@@ -688,7 +688,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-conso-pp','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>Semaine</th><th>MP PP</th><th>MP Vierge</th><th>Mélange</th><th>LLDPE</th><th>Charge</th><th>Additive</th><th>Colorant</th></tr></thead><tbody id="tbl-conso-pp-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>MP PP (kg)</th><th>MP Vierge (kg)</th><th>Mélange (kg)</th><th>LLDPE (kg)</th><th>Charge (kg)</th><th>Additive (kg)</th><th>Colorant (kg)</th><th>Total (kg)</th></tr></thead><tbody id="tbl-conso-pp-body"></tbody></table></div>
 </div>
 </div><div class="section" id="prod-conso-pe">
 <div class="breadcrumb">Production › Consommation</div>
@@ -712,7 +712,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-conso-pe','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>Semaine</th><th>LDPE</th><th>LLDPE</th><th>MLDPE</th><th>REG N&J</th><th>Additive</th><th>Colorant</th><th>Total</th></tr></thead><tbody id="tbl-conso-pe-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>MP PE (kg)</th><th>MP Vierge (kg)</th><th>Mélange (kg)</th><th>LLDPE (kg)</th><th>Charge (kg)</th><th>Additive (kg)</th><th>Colorant (kg)</th><th>Total (kg)</th></tr></thead><tbody id="tbl-conso-pe-body"></tbody></table></div>
 </div>
 </div><div class="section" id="prod-prod-pp">
 <div class="breadcrumb">Production › Production</div>
@@ -856,7 +856,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-distribution','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Quantité</th><th>Produit</th><th>N° Bon</th></tr></thead><tbody id="tbl-distribution-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Qté</th><th>Désignation</th><th>Total (kg)</th></tr></thead><tbody id="tbl-distribution-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-nakhla">
 <div class="breadcrumb">Stock › Nakhla</div>
@@ -899,7 +899,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-commandes','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Client</th><th>Référence</th><th>Produit</th><th>Qté Commandée</th><th>Qté Livrée</th><th>Reste</th><th>Statut</th></tr></thead><tbody id="tbl-commandes-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Produit</th><th>Qté Commandée</th><th>Qté Livrée</th><th>Reste</th><th>Statut</th></tr></thead><tbody id="tbl-commandes-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-clients">
 <div class="breadcrumb">Stock › Référentiels</div>
@@ -1103,7 +1103,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-dpp','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>Semaine</th><th>Type Déchet</th><th>Machine</th><th>Poids (kg)</th><th>Observation</th></tr></thead><tbody id="tbl-dpp-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Semaine</th><th>Date</th><th>Déchets PP (kg)</th></tr></thead><tbody id="tbl-dpp-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-dechets-pe">
 <div class="breadcrumb">QHSE › Déchets</div>
@@ -1127,7 +1127,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
       <button class="yr-btn" onclick="setYr('tbl-dpe','2026',this)">2026</button>
     </div>
   </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mois</th><th>Semaine</th><th>Type Déchet</th><th>Machine</th><th>Poids (kg)</th><th>Observation</th></tr></thead><tbody id="tbl-dpe-body"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Semaine</th><th>Date</th><th>Déchets PE (kg)</th></tr></thead><tbody id="tbl-dpe-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-accidents">
 <div class="breadcrumb">QHSE › Sécurité</div>
@@ -2225,6 +2225,82 @@ function fillTable(tid){
 
   var html='';
 
+  // ── Production Finale PP ──
+  if(tid==='tbl-prod-pp'){
+    filtered.forEach(function(r){
+      // r=[mois, sem, date, col3..col30]
+      // Grouper: Bandelette(3+4), Fil PP(5+6+7+8+30), Ficelles(9+10+11+12+28+29), Cordes(13..25+26+27), Total
+      var band  = normNum(r[3]) + normNum(r[4]);
+      var filb  = normNum(r[6]);
+      var filc  = normNum(r[5]) + normNum(r[7]) + normNum(r[8]) + normNum(r[30]||0);
+      var fic   = normNum(r[9]) + normNum(r[10]) + normNum(r[11]) + normNum(r[12]) + normNum(r[28]||0) + normNum(r[29]||0);
+      var cord  = normNum(r[13]||0)+normNum(r[14]||0)+normNum(r[15]||0)+normNum(r[16]||0)+normNum(r[17]||0)+normNum(r[18]||0)+normNum(r[19]||0)+normNum(r[20]||0)+normNum(r[21]||0)+normNum(r[22]||0)+normNum(r[23]||0)+normNum(r[24]||0)+normNum(r[25]||0)+normNum(r[26]||0)+normNum(r[27]||0);
+      var total = band+filb+filc+fic+cord;
+      html += '<tr>';
+      html += '<td style="color:var(--muted);font-size:11px">'+fmtDate(r[0])+'</td>';
+      html += '<td style="color:var(--muted);font-size:11px">'+fmtCell(r[1])+'</td>';
+      html += '<td><strong>'+fmtDate(r[2])+'</strong></td>';
+      html += '<td>'+fmtNum(band)+'</td>';
+      html += '<td>'+fmtNum(filb)+'</td>';
+      html += '<td>'+fmtNum(filc)+'</td>';
+      html += '<td>'+fmtNum(fic)+'</td>';
+      html += '<td>'+fmtNum(cord)+'</td>';
+      html += '<td><strong style="color:var(--accent)">'+fmtNum(total)+'</strong></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html; return;
+  }
+
+  // ── Production Finale PE ──
+  if(tid==='tbl-prod-pe'){
+    filtered.forEach(function(r){
+      // r=[mois, sem, date, produits...]
+      // Grouper en familles PE
+      var emball = normNum(r[3]||0);
+      var crist  = normNum(r[4]||0);
+      var pailN160 = normNum(r[5]||0);
+      var pailN140 = normNum(r[6]||0);
+      var pailBlanc = normNum(r[7]||0);
+      // Additionner le reste
+      var reste = 0;
+      for(var i=8; i<r.length; i++) reste += normNum(r[i]||0);
+      var total = emball+crist+pailN160+pailN140+pailBlanc+reste;
+      html += '<tr>';
+      html += '<td style="color:var(--muted);font-size:11px">'+fmtDate(r[0])+'</td>';
+      html += '<td style="color:var(--muted);font-size:11px">'+fmtCell(r[1])+'</td>';
+      html += '<td><strong>'+fmtDate(r[2])+'</strong></td>';
+      html += '<td>'+fmtNum(emball)+'</td>';
+      html += '<td>'+fmtNum(crist)+'</td>';
+      html += '<td>'+fmtNum(pailN160)+'</td>';
+      html += '<td>'+fmtNum(pailN140)+'</td>';
+      html += '<td>'+fmtNum(pailBlanc)+'</td>';
+      html += '<td><strong style="color:var(--accent)">'+fmtNum(total)+'</strong></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html; return;
+  }
+
+  // ── Consommation MP PP / PE ──
+  if(tid==='tbl-conso-pp'||tid==='tbl-conso-pe'){
+    filtered.forEach(function(r){
+      // r=[date, mois, MP_PP, MP_VIERGE, MELANGE, LLDPE, CHARGE, ADDITIVE, COLORANT]
+      var total = normNum(r[2])+normNum(r[3])+normNum(r[4])+normNum(r[5])+normNum(r[6])+normNum(r[7])+normNum(r[8]);
+      html+='<tr>';
+      html+='<td><strong>'+fmtDate(r[0])+'</strong></td>';
+      html+='<td style="color:var(--muted);font-size:11px">'+fmtDate(r[1])+'</td>';
+      html+='<td>'+fmtNum(r[2])+'</td>';
+      html+='<td>'+fmtNum(r[3])+'</td>';
+      html+='<td>'+fmtNum(r[4])+'</td>';
+      html+='<td>'+fmtNum(r[5])+'</td>';
+      html+='<td>'+fmtNum(r[6])+'</td>';
+      html+='<td>'+fmtNum(r[7])+'</td>';
+      html+='<td>'+fmtNum(r[8])+'</td>';
+      html+='<td><strong style="color:var(--accent)">'+fmtNum(total)+'</strong></td>';
+      html+='</tr>';
+    });
+    tbody.innerHTML=html; return;
+  }
+
   // ── PP par Machine : cols [0=date,1=L1P,2=L1D,3=L2P,4=L2D,5=L3P,6=L3D,7=L4P,8=L5P,9=L6P, last=Total] ──
   if(tid==='tbl-pp-machine'){
     filtered.forEach(r=>{
@@ -2256,6 +2332,21 @@ function fillTable(tid){
       html+='<td>'+fmtNum(r[3])+'</td><td>'+fmtNum(r[4])+'</td>';
       html+='<td>'+fmtNum(r[5])+'</td><td>'+fmtNum(r[6])+'</td>';
       html+='<td><strong>'+fmtNum(realTotal>0?realTotal:total)+'</strong></td>';
+      html+='</tr>';
+    });
+    tbody.innerHTML=html; return;
+  }
+
+  // ── Déchets PP / PE ──
+  if(tid==='tbl-dpp'||tid==='tbl-dpe'){
+    filtered.forEach(function(r){
+      html+='<tr>';
+      html+='<td style="color:var(--muted);font-size:11px">'+fmtDate(r[0])+'</td>';
+      html+='<td style="color:var(--muted);font-size:11px">'+fmtCell(r[1])+'</td>';
+      html+='<td>'+fmtDate(r[2])+'</td>';
+      // Poids - peut être en col3 ou col5 selon format
+      var poids = normNum(r[3]||0)||normNum(r[5]||0);
+      html+='<td><strong>'+fmtNum(poids)+'</strong></td>';
       html+='</tr>';
     });
     tbody.innerHTML=html; return;
@@ -2418,17 +2509,19 @@ function normalizeRows(tid, rawRows){
   if(tid==='tbl-conso-pp'||tid==='tbl-conso-pe'){
     var out=[];
     rows.forEach(function(r){
-      var d=normDate(r[5]||r[3]||'');
+      // NOUVELLE structure: col0=Mois, col1=Date, col2=MP PP, col3=MP VIERGE, col4=MELANGE, col5=LLDPE, col6=CHARGE, col7=ADDITIVE, col8=COLORANT
+      var d=normDate(String(r[1]||''));
       if(!d) return;
-      // Ignorer les lignes hebdo/mensuel (colonnes 12-17 remplies = ligne recap)
-      var isRecap=normNum(r[12])>0||normNum(r[18])>0;
+      var mois=normDate(String(r[0]||''))||d;
+      // Ignorer lignes recap hebdo/mensuel (col9+ remplies)
+      var isRecap=normNum(r[9])>0||normNum(r[16])>0;
       if(isRecap) return;
-      var mois=r[3]?normDate(String(r[3]).slice(0,10)):'';
-      var sem=String(r[4]||'');
-      var row=[d, mois||d, sem];
-      for(var i=6;i<=11;i++) row.push(normNum(r[i]));
-      // col 11 = COLORANT pour PE (index 11), total approximatif
-      if(row.slice(3).some(function(v){return v>0;})) out.push(row);
+      // Ignorer lignes avec toutes valeurs vides ou zéro
+      var vals=[normNum(r[2]),normNum(r[3]),normNum(r[4]),normNum(r[5]),normNum(r[6]),normNum(r[7]),normNum(r[8])];
+      if(!vals.some(function(v){return v>0;})) return;
+      var row=[d, mois];
+      vals.forEach(function(v){ row.push(v); });
+      out.push(row);
     });
     return out;
   }
@@ -2438,16 +2531,23 @@ function normalizeRows(tid, rawRows){
   if(tid==='tbl-prod-pp'||tid==='tbl-prod-pe'){
     var out=[];
     rows.forEach(function(r){
-      var d=null; var dCol=-1;
-      for(var ci=0;ci<Math.min(r.length,9);ci++){
-        var nd=normDate(String(r[ci]||''));
-        if(nd){ d=nd; dCol=ci; break; }
-      }
+      // Structure: col0=Mois, col1=Semaine, col2=Date, col3..N=journalier, puis hebdo, puis mensuel
+      var d = normDate(String(r[2]||''));
       if(!d) return;
-      var mois = dCol>=2 ? normDate(String(r[dCol-2]||'')) : '';
-      var sem  = dCol>=1 ? String(r[dCol-1]||'') : '';
-      var row=[mois||d, sem, d];
-      for(var i=dCol+1;i<r.length;i++) row.push(normNum(r[i]));
+      var mois = normDate(String(r[0]||'')) || d;
+      var sem  = String(r[1]||'');
+      // Ignorer lignes recap hebdo/mensuel : col0 ET col2 remplis avec des dates différentes
+      // ou lignes avec seulement des valeurs dans la partie hebdo/mensuel (col31+)
+      // Garder uniquement lignes journalières : col3 à col30 peuvent avoir des valeurs
+      // Detecter recap : si col1 est vide ET col0 contient une date differente de col2 => mensuel
+      // Si col1 contient "S" => recap hebdo
+      var isSem = /^S[,.]?\d+$/i.test(sem.trim()) && normNum(r[3])===0 && normNum(r[4])===0 && normNum(r[5])===0;
+      var isMois = (!sem||sem==='') && mois && mois!==d && normNum(r[3])===0;
+      if(isSem || isMois) return;
+      // Construire la ligne avec les colonnes journalières (col3 à col30 max)
+      var row = [mois, sem, d];
+      var end_col = Math.min(r.length, 31); // colonnes journalières seulement
+      for(var i=3; i<end_col; i++) row.push(normNum(r[i]));
       if(row.slice(3).some(function(v){return v>0;})) out.push(row);
     });
     if(out.length>0) return out;
@@ -2850,40 +2950,39 @@ function updateMetrics(sid){
 
   // ── Conso PP ──
   if(sid==='prod-conso-pp'){
-    var rpp=get('tbl-conso-pp').filter(function(r){return r[3]||r[4]||r[5];});
+    // r=[date, mois, MP_PP, MP_VIERGE, MELANGE, LLDPE, CHARGE, ADDITIVE, COLORANT]
+    var rpp=get('tbl-conso-pp').filter(function(r){return normNum(r[2])>0||normNum(r[4])>0||normNum(r[5])>0;});
     var totalPP=0;
     rpp.forEach(function(r){
-      [3,4,5,6,7,8,9].forEach(function(i){totalPP+=(parseFloat(String(r[i]||0).replace(',','.'))||0);});
+      [2,3,4,5,6,7,8].forEach(function(i){totalPP+=normNum(r[i]||0);});
     });
-    // Déchets from tbl-dpp
-    var rdpp=get('tbl-dpp').filter(function(r){return r[5];});
-    var totalDpp=0;
-    rdpp.forEach(function(r){totalDpp+=(parseFloat(String(r[5]||0).replace(',','.'))||0);});
-    // Semaines
-    var sems=new Set(rpp.map(function(r){return String(r[2]||'');}).filter(function(s){return s&&s!=='';}).filter(Boolean));
+    // Déchets from tbl-dpp — r=[mois, sem, date, poids]
+    var rdpp=get('tbl-dpp').filter(function(r){return normNum(r[3])>0;});
+    var totalDpp=rdpp.reduce(function(a,r){return a+normNum(r[3]);},0);
+    // Mois actifs
+    var moisPP=new Set(rpp.map(function(r){return String(r[1]||'').slice(0,7);}).filter(Boolean));
     setMetric('pp-conso-total', (totalPP/1000).toFixed(1)+' t');
     setMetric('pp-dechets-total', (totalDpp/1000).toFixed(1)+' t');
     setMetric('pp-jours', rpp.length);
-    setMetric('pp-semaines', sems.size||'—');
+    setMetric('pp-semaines', moisPP.size||'—');
   }
 
   // ── Conso PE ──
   if(sid==='prod-conso-pe'){
-    var rpe=get('tbl-conso-pe').filter(function(r){return r[3]||r[4]||r[5]||r[6];});
+    // r=[date, mois, MP_PE, MP_VIERGE, MELANGE, LLDPE, CHARGE, ADDITIVE, COLORANT]
+    var rpe=get('tbl-conso-pe').filter(function(r){return normNum(r[2])>0||normNum(r[4])>0||normNum(r[5])>0;});
     var totalPE=0;
     rpe.forEach(function(r){
-      [3,4,5,6,7,8].forEach(function(i){totalPE+=(parseFloat(String(r[i]||0).replace(',','.'))||0);});
+      [2,3,4,5,6,7,8].forEach(function(i){totalPE+=normNum(r[i]||0);});
     });
-    var lldpe=0;
-    rpe.forEach(function(r){lldpe+=(parseFloat(String(r[4]||0).replace(',','.'))||0);});
-    var rdpe=get('tbl-dpe').filter(function(r){return r[5];});
-    var totalDpe=0;
-    rdpe.forEach(function(r){totalDpe+=(parseFloat(String(r[5]||0).replace(',','.'))||0);});
-    var semsPE=new Set(rpe.map(function(r){return String(r[2]||'');}).filter(Boolean));
+    var lldpe=rpe.reduce(function(a,r){return a+normNum(r[5]);},0);
+    var rdpe=get('tbl-dpe').filter(function(r){return normNum(r[3])>0;});
+    var totalDpe=rdpe.reduce(function(a,r){return a+normNum(r[3]);},0);
+    var moisPE=new Set(rpe.map(function(r){return String(r[1]||'').slice(0,7);}).filter(Boolean));
     setMetric('pe-conso-total', (totalPE/1000).toFixed(1)+' t');
     setMetric('pe-lldpe-total', (lldpe/1000).toFixed(1)+' t');
     setMetric('pe-jours', rpe.length);
-    setMetric('pe-semaines', semsPE.size||'—');
+    setMetric('pe-semaines', moisPE.size||'—');
   }
 
   // ── Nakhla ──
