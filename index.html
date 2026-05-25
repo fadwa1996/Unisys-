@@ -3053,9 +3053,30 @@ function updateMetrics(sid){
         .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
       return t.includes('non program')||t.includes('urgent')||t.includes('panne')||t.includes('non prog');
     }).length;
-    setMetric('maint-total', rows.length||'—');
-    setMetric('maint-urgent', urgentCheck||0);
-    setMetric('maint-prog', prog||0);
+    // Debug: afficher d'abord le total pour vérifier que rows est chargé
+    var total = rows.length;
+    setMetric('maint-total', total);
+    setMetric('maint-urgent', urgentCheck);
+    setMetric('maint-prog', prog);
+    // Si tout est 0, retenter après délai
+    if(total===0){
+      setTimeout(function(){
+        var r2=get('tbl-maintenance');
+        if(r2.length>0){
+          var p2=r2.filter(function(r){
+            var t=String(r[1]||'').toLowerCase();
+            return t.indexOf('program')>=0 && t.indexOf('non')<0;
+          }).length;
+          var u2=r2.filter(function(r){
+            var t=String(r[1]||'').toLowerCase();
+            return t.indexOf('non')>=0||t.indexOf('urgent')>=0||t.indexOf('panne')>=0;
+          }).length;
+          setMetric('maint-total',r2.length);
+          setMetric('maint-urgent',u2);
+          setMetric('maint-prog',p2);
+        }
+      },2000);
+    }
   }
 
   // ── Produits familles ──
