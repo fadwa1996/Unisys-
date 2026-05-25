@@ -2558,11 +2558,18 @@ function normalizeRows(tid, rawRows){
     var out=[];
     rows.forEach(function(r){
       var d=null; var dCol=-1;
-      for(var ci=0;ci<Math.min(r.length,9);ci++){
+      // Chercher date dans les 5 premières colonnes (pas 9 pour éviter les faux positifs)
+      for(var ci=0;ci<Math.min(r.length,5);ci++){
         var nd=normDate(String(r[ci]||''));
         if(nd){ d=nd; dCol=ci; break; }
       }
       if(!d) return;
+      // Ignorer lignes recap (somme hebdo/mensuelle): si plusieurs dates dans la ligne
+      var extraDates=0;
+      for(var ci2=dCol+1;ci2<Math.min(r.length,dCol+5);ci2++){
+        if(normDate(String(r[ci2]||''))) extraDates++;
+      }
+      if(extraDates>0) return;
       var row=[d];
       for(var i=dCol+1;i<r.length;i++) row.push(normNum(r[i]));
       if(row.slice(1).some(function(v){return v>0;})) out.push(row);
@@ -3066,23 +3073,48 @@ function updateMetrics(sid){
 
 // ── PP Machine ──
   if(sid==='prod-pp-machine'){
-    var rpp=get('tbl-pp-machine').filter(function(r){return r[1]||r[2];});
-    var tot=rpp.reduce(function(a,r){return a+(parseFloat(String(r[1]||0).replace(',','.'))||0);},0);
+    var rpp=get('tbl-pp-machine').filter(function(r){
+      return r.slice(1).some(function(v){return normNum(v)>0;});
+    });
+    var tot=rpp.reduce(function(a,r){
+      // Sommer toutes les colonnes production (indices impairs: L1P, L2P, L3P, L4P, L5P, L6P)
+      // row=[date, L1P, L1D, L2P, L2D, L3P, L3D, L4P, L5P, L6P]
+      return a+normNum(r[1]||0)+normNum(r[3]||0)+normNum(r[5]||0)+normNum(r[7]||0)+normNum(r[8]||0)+normNum(r[9]||0);
+    },0);
     var moy=rpp.length?tot/rpp.length:0;
-    var lignes=Object.keys(rpp.reduce(function(acc,r){if(r[1])acc['PP']++;return acc;},{})).length||6;
+    // Compter lignes actives (colonnes avec au moins une valeur > 0)
+    var lignesActives=0;
+    [1,3,5,7,8,9].forEach(function(ci){
+      if(rpp.some(function(r){return normNum(r[ci]||0)>0;})) lignesActives++;
+    });
+    // Semaines = plage de dates / 7
+    var datesPPM=rpp.map(function(r){return new Date(r[0]);}).filter(function(d){return !isNaN(d);});
+    var semsPPM='—';
+    if(datesPPM.length>1){
+      semsPPM=Math.ceil((Math.max.apply(null,datesPPM)-Math.min.apply(null,datesPPM))/(7*24*3600*1000))+1;
+    }
     setMetric('ppm-total', (tot/1000).toFixed(1)+' t');
-    setMetric('ppm-lignes', lignes);
+    setMetric('ppm-lignes', lignesActives||6);
     setMetric('ppm-jours', rpp.length);
     setMetric('ppm-moy', Math.round(moy).toLocaleString('fr-FR')+' kg');
   }
 
   // ── PE Machine ──
   if(sid==='prod-pe-machine'){
-    var rpe=get('tbl-pe-machine').filter(function(r){return r[1]||r[2];});
-    var tot2=rpe.reduce(function(a,r){return a+(parseFloat(String(r[1]||0).replace(',','.'))||0);},0);
+    var rpe=get('tbl-pe-machine').filter(function(r){
+      return r.slice(1).some(function(v){return normNum(v)>0;});
+    });
+    var tot2=rpe.reduce(function(a,r){
+      // row=[date, M1P, M1D, M2P, M2D, M3P, M3D]
+      return a+normNum(r[1]||0)+normNum(r[3]||0)+normNum(r[5]||0);
+    },0);
     var moy2=rpe.length?tot2/rpe.length:0;
+    var lignesPE=0;
+    [1,3,5].forEach(function(ci){
+      if(rpe.some(function(r){return normNum(r[ci]||0)>0;})) lignesPE++;
+    });
     setMetric('pem-total', (tot2/1000).toFixed(1)+' t');
-    setMetric('pem-lignes', rpe.length);
+    setMetric('pem-lignes', lignesPE||3);
     setMetric('pem-jours', rpe.length);
     setMetric('pem-moy', Math.round(moy2).toLocaleString('fr-FR')+' kg');
   }
