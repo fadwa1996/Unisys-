@@ -2929,7 +2929,7 @@ function sortTableBy(tid,col,th,allThs){
 
 function setMetric(id, val){
   var el=document.getElementById(id);
-  if(el) el.textContent = (val===null||val===undefined||val===0||val==='') ? '—' : String(val);
+  if(el) el.textContent = (val===null||val===undefined||val==='') ? '—' : String(val);
 }
 
 function updateMetrics(sid){
@@ -3042,18 +3042,20 @@ function updateMetrics(sid){
   if(sid==='prod-maintenance'){
     var rows=get('tbl-maintenance');
     // r=[date, type, arrêt, machine, hdebut, hfin, durée]
-    var urgent=rows.filter(function(r){
-      return String(r[1]||'').toLowerCase().includes('non program')||
-             String(r[1]||'').toLowerCase().includes('urgent')||
-             String(r[1]||'').toLowerCase().includes('panne');
-    }).length;
+    var urgent=0; // calculé ci-dessous avec urgentCheck
     var prog=rows.filter(function(r){
-      var t=String(r[1]||'').toLowerCase();
-      return t.includes('programm') && !t.includes('non');
+      var t=String(r[1]||'').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,''); // enlever accents
+      return (t.includes('programm')||t.includes('program')) && !t.includes('non');
     }).length;
-    setMetric('maint-total', rows.length);
-    setMetric('maint-urgent', urgent);
-    setMetric('maint-prog', prog);
+    var urgentCheck=rows.filter(function(r){
+      var t=String(r[1]||'').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      return t.includes('non program')||t.includes('urgent')||t.includes('panne')||t.includes('non prog');
+    }).length;
+    setMetric('maint-total', rows.length||'—');
+    setMetric('maint-urgent', urgentCheck||0);
+    setMetric('maint-prog', prog||0);
   }
 
   // ── Produits familles ──
@@ -3487,11 +3489,11 @@ function renderCharts(sid){
 
   if(sid==='prod-maintenance'){
     var types={};
-    rows('tbl-maintenance').forEach(r=>{var t=String(r[2]||'Autre').slice(0,30);types[t]=(types[t]||0)+1;});
+    rows('tbl-maintenance').forEach(r=>{var t=String(r[1]||'Autre').slice(0,30);types[t]=(types[t]||0)+1;});
     var tkeys=Object.keys(types).slice(0,6);
     cPie('ch-maint-type',tkeys,tkeys.map(k=>types[k]));
     var machs={};
-    rows('tbl-maintenance').forEach(r=>{var m=String(r[4]||'Autre').slice(0,20);machs[m]=(machs[m]||0)+1;});
+    rows('tbl-maintenance').forEach(r=>{var m=String(r[3]||'Autre').slice(0,25);machs[m]=(machs[m]||0)+1;});
     var mkeys=Object.keys(machs).sort((a,b)=>machs[b]-machs[a]).slice(0,8);
     cBar('ch-maint-machine',mkeys,[{label:'Nb arrêts',data:mkeys.map(k=>machs[k])}]);
   }
