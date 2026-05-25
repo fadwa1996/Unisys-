@@ -817,8 +817,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="metrics">
   <div class="metric"><div class="metric-label">Total interventions</div><div class="metric-val blue" id="maint-total">—</div><div class="metric-sub">enregistrées</div></div>
   <div class="metric"><div class="metric-label">Arrêts non programmés</div><div class="metric-val orange" id="maint-urgent">—</div><div class="metric-sub">pannes / urgences</div></div>
-  <div class="metric"><div class="metric-label">Arrêts programmés</div><div class="metric-val blue" id="maint-prog">—</div><div class="metric-sub">maintenance préventive</div></div>
-  <div class="metric"><div class="metric-label">Machines concernées</div><div class="metric-val" id="maint-machines">—</div><div class="metric-sub">équipements suivis</div></div>
+  <div class="metric"><div class="metric-label">Arrêts programmés</div><div class="metric-val green" id="maint-prog">—</div><div class="metric-sub">maintenance préventive</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Types d'arrêts</div><div class="chart-wrap"><canvas id="ch-maint-type"></canvas></div></div><div class="card"><div class="card-title">Top machines en arrêt</div><div class="chart-wrap"><canvas id="ch-maint-machine"></canvas></div></div></div>
 <div class="card">
   <div class="tbl-header">
@@ -3049,14 +3048,12 @@ function updateMetrics(sid){
              String(r[1]||'').toLowerCase().includes('panne');
     }).length;
     var prog=rows.filter(function(r){
-      return String(r[1]||'').toLowerCase().includes('program') &&
-             !String(r[1]||'').toLowerCase().includes('non');
+      var t=String(r[1]||'').toLowerCase();
+      return t.includes('programm') && !t.includes('non');
     }).length;
-    var machines=new Set(rows.map(function(r){return String(r[3]||'');}).filter(Boolean)).size;
     setMetric('maint-total', rows.length);
     setMetric('maint-urgent', urgent);
     setMetric('maint-prog', prog);
-    setMetric('maint-machines', machines);
   }
 
   // ── Produits familles ──
