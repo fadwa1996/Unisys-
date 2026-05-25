@@ -3043,16 +3043,22 @@ function updateMetrics(sid){
     var rows=get('tbl-maintenance');
     // r=[date, type, arrêt, machine, hdebut, hfin, durée]
     var urgent=0; // calculé ci-dessous avec urgentCheck
-    var prog=rows.filter(function(r){
-      var t=String(r[1]||'').toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g,''); // enlever accents
-      return (t.includes('programm')||t.includes('program')) && !t.includes('non');
-    }).length;
-    var urgentCheck=rows.filter(function(r){
-      var t=String(r[1]||'').toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      return t.includes('non program')||t.includes('urgent')||t.includes('panne')||t.includes('non prog');
-    }).length;
+    // Comptage direct par valeur exacte
+    var prog=0, urgentCheck=0;
+    rows.forEach(function(r){
+      var t=String(r[1]||'');
+      // "Arrêt programmé" = programmé sans "non"
+      if(t==='Arrêt programmé' || t==='Arret programme' || t==='Arrêt Programmé'){
+        prog++;
+      } else if(t==='Arrêt non programmé' || t==='Arret non programme' || t==='Arrêt Non Programmé'){
+        urgentCheck++;
+      } else {
+        // Fallback: chercher par mots clés
+        var tl=t.toLowerCase();
+        if(tl.indexOf('non')>=0) urgentCheck++;
+        else if(tl.indexOf('program')>=0 || tl.indexOf('arret')>=0) prog++;
+      }
+    });
     // Debug: afficher d'abord le total pour vérifier que rows est chargé
     var total = rows.length;
     setMetric('maint-total', total);
