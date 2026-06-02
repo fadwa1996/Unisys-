@@ -26,6 +26,57 @@
   --green:#10b981; --amber:#f59e0b; --red:#ef4444;
   --blue:#0ea5e9; --teal:#06b6d4; --purple:#8b5cf6;
   --pink:#ec4899; --lime:#84cc16; --orange:#f97316;
+  --font-main:'DM Sans',sans-serif;
+  --font-title:'Syne',sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+
+/* ── Polices uniformes sur toute l'app ── */
+*, *::before, *::after { box-sizing:border-box; }
+body, input, select, textarea, button {
+  font-family: var(--font-main);
+  font-size: 13px;
+  color: var(--text);
+}
+h1,h2,h3,.page-title,.card-title,.section-title,.metric-label,.nav-label {
+  font-family: var(--font-title);
+}
+.breadcrumb, th, .tbl-title, code, .badge,
+.metric-val, .font-mono {
+  font-family: var(--font-mono);
+}
+th {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+td {
+  font-family: var(--font-main);
+  font-size: 13px;
+}
+.page-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -.02em;
+}
+.page-sub {
+  font-family: var(--font-main);
+  font-size: 13px;
+  color: var(--muted);
+}
+.metric-val {
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 700;
+}
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
 }
 :root.light {
   --bg:#f5f5f5; --surface:#ffffff; --surface2:#f0f0f0; --border:#e2e8f0;
@@ -653,12 +704,9 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <button class="nav-btn" id="nav-stock" onclick="showRubrique('stock',this)">📦 Produits / Stock / Ventes</button>
   <button class="nav-btn" id="nav-qhse" onclick="showRubrique('qhse',this)">🛡️ QHSE</button>
   <button class="nav-btn" id="nav-energie" onclick="showRubrique('energie',this)">⚡ Gestion Énergétique</button>
-  <button class="nav-btn" id="nav-about" onclick="showRubrique('about',this)">👤 À propos</button>
-  <button class="nav-btn" id="nav-admin" onclick="showRubrique('admin',this)">⚙️ Administration</button>
-  <div id="nav-user-info" style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:12px">
-    <span id="nav-username" style="color:var(--muted)"></span>
-    <span id="nav-role-badge" style="border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600"></span>
-  </div>
+  <button class="nav-btn" id="nav-about" onclick="showRubrique('about',this)">✦ À propos</button>
+  <button class="nav-btn" id="nav-admin" onclick="showRubrique('admin',this)">⚙ Administration</button>
+
 </nav>
 
 <!-- SUB NAV -->
@@ -844,18 +892,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Produits distribués</div><div class="metric-val" id="dist-produits">—</div><div class="metric-sub">références distinctes</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Livraisons par mois</div><div class="chart-wrap"><canvas id="ch-distrib-bar"></canvas></div></div><div class="card"><div class="card-title">Top clients</div><div class="chart-wrap"><canvas id="ch-distrib-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Distribution</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-distribution']=this.value;fillTable('tbl-distribution')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-distribution',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-distribution','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-distribution','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-distribution','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Qté</th><th>Désignation</th><th>Total (kg)</th></tr></thead><tbody id="tbl-distribution-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Distribution</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Qté</th><th>Désignation</th><th>Total (kg)</th></tr></thead><tbody id="tbl-distribution-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-nakhla">
 <div class="breadcrumb">Stock › Nakhla</div>
@@ -863,18 +901,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
 <div class="page-sub">Gestion des mouvements Nakhla</div>
 <div class="metrics"><div class="metric"><div class="metric-label">Total mouvements</div><div class="metric-val blue" id="nakhla-total">—</div><div class="metric-sub">entrées et sorties</div></div><div class="metric"><div class="metric-label">Entrées</div><div class="metric-val green" id="nakhla-entrees">—</div><div class="metric-sub">mouvements entrants</div></div><div class="metric"><div class="metric-label">Sorties</div><div class="metric-val orange" id="nakhla-sorties">—</div><div class="metric-sub">mouvements sortants</div></div></div><div class="grid-2"><div class="card"><div class="card-title">Mouvements Nakhla</div><div class="chart-wrap"><canvas id="ch-nakhla-bar"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-nakhla-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Entrées & Sorties Nakhla</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-nakhla']=this.value;fillTable('tbl-nakhla')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-nakhla',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-nakhla','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-nakhla','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-nakhla','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date Entrée</th><th>Réf. Entrée</th><th>Qté Entrée (kg)</th><th>Date Sortie</th><th>Réf. Sortie</th><th>Qté Sortie (kg)</th></tr></thead><tbody id="tbl-nakhla-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Entrées & Sorties Nakhla</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Date Entrée</th><th>Réf. Entrée</th><th>Qté Entrée (kg)</th><th>Date Sortie</th><th>Réf. Sortie</th><th>Qté Sortie (kg)</th></tr></thead><tbody id="tbl-nakhla-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-commande">
 <div class="breadcrumb">Stock › Commandes</div>
@@ -887,18 +915,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Clients actifs</div><div class="metric-val" id="cmd-clients">—</div><div class="metric-sub">clients distincts</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Commandes par client</div><div class="chart-wrap"><canvas id="ch-commandes"></canvas></div></div><div class="card"><div class="card-title">Avancement</div><div class="chart-wrap"><canvas id="ch-commandes-prog"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Commandes</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-commandes']=this.value;fillTable('tbl-commandes')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-commandes',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-commandes','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-commandes','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-commandes','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Produit</th><th>Qté Commandée</th><th>Qté Livrée</th><th>Reste</th><th>Statut</th></tr></thead><tbody id="tbl-commandes-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Commandes</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Produit</th><th>Qté Commandée</th><th>Qté Livrée</th><th>Reste</th><th>Statut</th></tr></thead><tbody id="tbl-commandes-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-clients">
 <div class="breadcrumb">Stock › Référentiels</div>
@@ -911,18 +929,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Catégories</div><div class="metric-val" id="cli-cats">—</div><div class="metric-sub">types de clients</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Liste Clients</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-clients']=this.value;fillTable('tbl-clients')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-clients',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-clients','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-clients','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-clients','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Nom Client</th><th>Ville</th><th>Téléphone</th><th>Email</th><th>Catégorie</th></tr></thead><tbody id="tbl-clients-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Liste Clients</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Nom Client</th><th>Ville</th><th>Téléphone</th><th>Email</th><th>Catégorie</th></tr></thead><tbody id="tbl-clients-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-four-mp">
 <div class="breadcrumb">Stock › Référentiels</div>
@@ -934,18 +942,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Avec email</div><div class="metric-val orange" id="fmp-email">—</div><div class="metric-sub">contacts email</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Fournisseurs MP</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-four-mp']=this.value;fillTable('tbl-four-mp')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-four-mp',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-four-mp','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-four-mp','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-four-mp','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Fournisseur</th><th>Produit</th><th>Ville</th><th>Téléphone</th><th>Email</th></tr></thead><tbody id="tbl-four-mp-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Fournisseurs MP</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Fournisseur</th><th>Produit</th><th>Ville</th><th>Téléphone</th><th>Email</th></tr></thead><tbody id="tbl-four-mp-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-four-divers">
 <div class="breadcrumb">Stock › Référentiels</div>
@@ -958,18 +956,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Familles produits</div><div class="metric-val" id="fdiv-types">—</div><div class="metric-sub">catégories distinctes</div></div>
 </div><div class="card"><div class="card-title">Répartition géographique</div><div class="chart-wrap"><canvas id="ch-fourdiv-pie"></canvas></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Fournisseurs Divers</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-four-div']=this.value;fillTable('tbl-four-div')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-four-div',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-four-div','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-four-div','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-four-div','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Fournisseur</th><th>Produit</th><th>Ville</th><th>Téléphone</th><th>Mail</th></tr></thead><tbody id="tbl-four-div-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Fournisseurs Divers</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Fournisseur</th><th>Produit</th><th>Ville</th><th>Téléphone</th><th>Mail</th></tr></thead><tbody id="tbl-four-div-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-produits">
 <div class="breadcrumb">Stock › Référentiels</div>
@@ -982,18 +970,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Avec description</div><div class="metric-val" id="prod-desc">—</div><div class="metric-sub">fiches complètes</div></div>
 </div><div class="card"><div class="card-title">Produits par famille</div><div class="chart-wrap"><canvas id="ch-produits-pie"></canvas></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Liste de Produits</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-produits']=this.value;fillTable('tbl-produits')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-produits',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-produits','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-produits','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-produits','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Famille</th><th>Produit</th><th>Référence</th><th>Unité</th><th>Description</th></tr></thead><tbody id="tbl-produits-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Liste de Produits</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Famille</th><th>Produit</th><th>Référence</th><th>Unité</th><th>Description</th></tr></thead><tbody id="tbl-produits-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-inv-meca">
 <div class="breadcrumb">Stock › Inventaire</div>
@@ -1006,18 +984,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Marques</div><div class="metric-val" id="meca-marques">—</div><div class="metric-sub">fabricants distincts</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Atelier Mécanique</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-meca']=this.value;fillTable('tbl-meca')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-meca',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-meca','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-meca','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-meca','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Machine</th><th>Type</th><th>Marque</th><th>Puissance (kW)</th><th>Série</th><th>État</th></tr></thead><tbody id="tbl-meca-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Atelier Mécanique</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Machine</th><th>Type</th><th>Marque</th><th>Puissance (kW)</th><th>Série</th><th>État</th></tr></thead><tbody id="tbl-meca-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-magasin">
 <div class="breadcrumb">Stock › Inventaire</div>
@@ -1030,18 +998,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Avec référence</div><div class="metric-val" id="mag-refs">—</div><div class="metric-sub">articles identifiés</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Stock Magasin</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-stock-mag']=this.value;fillTable('tbl-stock-mag')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-stock-mag',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-stock-mag','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-stock-mag','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-stock-mag','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Catégorie</th><th>Référence</th><th>Désignation</th><th>Quantité</th><th>Unité</th></tr></thead><tbody id="tbl-stock-mag-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Stock Magasin</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Catégorie</th><th>Référence</th><th>Désignation</th><th>Quantité</th><th>Unité</th></tr></thead><tbody id="tbl-stock-mag-body"></tbody></table></div>
 </div>
 </div><div class="section" id="stock-inv-elec">
 <div class="breadcrumb">Stock › Inventaire</div>
@@ -1054,31 +1012,189 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Avec série</div><div class="metric-val" id="elec-series">—</div><div class="metric-sub">numéros de série</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Inventaire Électrique</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-inv-elec']=this.value;fillTable('tbl-inv-elec')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-inv-elec',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-inv-elec','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-inv-elec','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-inv-elec','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Zone</th><th>Équipement</th><th>Marque</th><th>Puissance (kW)</th><th>Série</th></tr></thead><tbody id="tbl-inv-elec-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Inventaire Électrique</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Zone</th><th>Équipement</th><th>Marque</th><th>Puissance (kW)</th><th>Série</th></tr></thead><tbody id="tbl-inv-elec-body"></tbody></table></div>
 </div>
 </div></div><div class="section" id="stock-pe">
 <div class="breadcrumb">Stock › Stock PE</div>
-<div class="page-title">Stocks PE</div>
-<div class="page-sub">Stock des produits extrudés</div>
-<div class="tbl-controls"><select class="yr-sel" onchange="setYr('tbl-stock-pe',this.value)"><option value="all">Toutes les années</option></select><select class="mo-sel" onchange="setMo('tbl-stock-pe',this.value)"><option value="all">Tous les mois</option></select></div>
-<div class="tbl-wrap"><table class="data-table"><thead><tr id="tbl-stock-pe-head"></tr></thead><tbody id="tbl-stock-pe-body"><tr><td colspan="20" class="tbl-empty">Chargement...</td></tr></tbody></table></div>
+<div class="page-title">Stock Film PE</div>
+<div class="page-sub">Inventaire des rouleaux de film polyéthylène</div>
+
+<!-- Formulaire ajout -->
+<div class="card" style="margin-bottom:1.5rem">
+  <div class="card-title" style="margin-bottom:1rem">Ajouter une référence</div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+    <div style="flex:2;min-width:180px">
+      <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.4rem">Référence</div>
+      <input id="pe-ref-input" type="text" placeholder="ex: PE 1,60/40" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font-main);font-size:13px;outline:none"/>
+    </div>
+    <div style="flex:1;min-width:100px">
+      <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.4rem">Rouleaux</div>
+      <input id="pe-roul-input" type="number" value="0" min="0" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font-main);font-size:13px;outline:none"/>
+    </div>
+    <div style="flex:1;min-width:100px">
+      <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.4rem">Poids (kg)</div>
+      <input id="pe-poids-input" type="number" value="0" min="0" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font-main);font-size:13px;outline:none"/>
+    </div>
+    <button onclick="peAddRef()" style="background:var(--lime);color:#000;font-weight:700;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-family:var(--font-main);font-size:13px;white-space:nowrap">+ Ajouter</button>
+  </div>
+</div>
+
+<!-- Graphiques -->
+<div class="grid-2" style="margin-bottom:1.5rem">
+  <div class="card">
+    <div class="card-title">Rouleaux par référence</div>
+    <div class="chart-wrap"><canvas id="ch-pe-rouleaux"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Poids (t) par référence</div>
+    <div class="chart-wrap"><canvas id="ch-pe-poids"></canvas></div>
+  </div>
+</div>
+
+<!-- Tableau inventaire -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div class="card-title">Inventaire — Film PE</div>
+    <button onclick="peLoadData()" style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 14px;color:var(--muted);cursor:pointer;font-size:12px">↻ Actualiser</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Référence</th>
+          <th>Rouleaux</th>
+          <th>Poids (kg)</th>
+          <th>Remarque</th>
+          <th style="width:50px"></th>
+        </tr>
+      </thead>
+      <tbody id="tbl-stock-pe-body">
+        <tr><td colspan="6" class="tbl-empty">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+#tbl-stock-pe-body td:nth-child(2){ color:var(--lime);font-weight:700;font-family:var(--font-mono); }
+#tbl-stock-pe-body td:first-child{ color:var(--muted);font-family:var(--font-mono); }
+.pe-del-btn{ background:transparent;border:1px solid var(--red);color:var(--red);border-radius:4px;width:28px;height:28px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center; }
+.pe-del-btn:hover{ background:var(--red);color:#fff; }
+</style>
+
+<script>
+// ── Stock PE Storage ──
+var PE_KEY = 'unisys_stock_pe';
+
+function peGetData(){
+  try{ return JSON.parse(localStorage.getItem(PE_KEY)||'[]'); }
+  catch(e){ return []; }
+}
+
+function peSaveData(data){
+  localStorage.setItem(PE_KEY, JSON.stringify(data));
+}
+
+function peAddRef(){
+  var ref = document.getElementById('pe-ref-input').value.trim();
+  var roul = parseFloat(document.getElementById('pe-roul-input').value)||0;
+  var poids = parseFloat(document.getElementById('pe-poids-input').value)||0;
+  if(!ref){ alert('Entrez une référence'); return; }
+  var data = peGetData();
+  data.push({ref:ref, rouleaux:roul, poids:poids, remarque:''});
+  peSaveData(data);
+  document.getElementById('pe-ref-input').value='';
+  document.getElementById('pe-roul-input').value='0';
+  document.getElementById('pe-poids-input').value='0';
+  peRender();
+}
+
+function peDeleteRef(idx){
+  var data = peGetData();
+  data.splice(idx,1);
+  peSaveData(data);
+  peRender();
+}
+
+function peRender(){
+  var data = peGetData();
+  var tbody = document.getElementById('tbl-stock-pe-body');
+  if(!tbody) return;
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="6" class="tbl-empty">Aucune donnée disponible</td></tr>';
+  } else {
+    tbody.innerHTML = data.map(function(r,i){
+      return '<tr>'+
+        '<td>'+(String(i+1).padStart(2,'0'))+'</td>'+
+        '<td>'+r.ref+'</td>'+
+        '<td>'+r.rouleaux.toLocaleString('fr-FR')+'</td>'+
+        '<td>'+(r.poids).toLocaleString('fr-FR',{minimumFractionDigits:2})+'</td>'+
+        '<td style="color:var(--amber)">'+(r.remarque||'')+'</td>'+
+        '<td><button class="pe-del-btn" onclick="peDeleteRef('+i+')">✕</button></td>'+
+      '</tr>';
+    }).join('');
+  }
+  peRenderCharts(data);
+}
+
+function peRenderCharts(data){
+  if(!data.length) return;
+  var labels = data.map(function(r){ return r.ref; });
+  var rouleaux = data.map(function(r){ return r.rouleaux; });
+  var poids = data.map(function(r){ return parseFloat((r.poids/1000).toFixed(2)); });
+  var colors = ['#84cc16','#0ea5e9','#f59e0b','#8b5cf6','#10b981','#ef4444','#06b6d4','#ec4899','#f97316','#6366f1'];
+
+  ['ch-pe-rouleaux','ch-pe-poids'].forEach(function(cid){
+    var canvas = document.getElementById(cid);
+    if(!canvas) return;
+    if(canvas._chart) canvas._chart.destroy();
+    canvas._chart = new Chart(canvas, {
+      type:'bar',
+      data:{
+        labels:labels,
+        datasets:[{
+          label: cid==='ch-pe-rouleaux'?'Rouleaux':'Poids (t)',
+          data: cid==='ch-pe-rouleaux'?rouleaux:poids,
+          backgroundColor: colors.slice(0,labels.length),
+          borderRadius:4
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:'#888',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,.05)'}}
+        }
+      }
+    });
+  });
+}
+
+function peLoadData(){ peRender(); }
+
+// Auto-render quand on arrive sur la section
+document.addEventListener('DOMContentLoaded', function(){
+  var obs = new MutationObserver(function(){
+    var sec = document.getElementById('stock-pe');
+    if(sec && sec.classList.contains('active')) peRender();
+  });
+  var cont = document.querySelector('.app-content')||document.body;
+  obs.observe(cont, {subtree:true, attributeFilter:['class']});
+});
+</script>
 </div>
 <div class="section" id="stock-procedure">
 <div class="breadcrumb">QHSE › Procédure Qualité</div>
 <div class="page-title">Procédure Qualité</div>
 <div class="page-sub">Procédures et standards qualité</div>
-<div class="tbl-wrap"><table class="data-table"><thead><tr id="tbl-procedure-head"></tr></thead><tbody id="tbl-procedure-body"><tr><td colspan="20" class="tbl-empty">Chargement...</td></tr></tbody></table></div>
+<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem;color:var(--muted)">
+  <div style="font-size:48px">📋</div>
+  <div style="font-family:var(--font-title);font-size:18px;color:var(--text)">Section en préparation</div>
+  <div style="font-size:13px">Les procédures qualité seront disponibles prochainement</div>
+</div>
 </div>
 <div class="rubrique" id="rub-qhse"><div class="section" id="qhse-dechets-pp">
 <div class="breadcrumb">QHSE › Déchets</div>
@@ -1091,18 +1207,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="dpp-semaines">—</div><div class="metric-sub">suivi hebdomadaire</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Déchets PP par mois</div><div class="chart-wrap"><canvas id="ch-dpp-bar"></canvas></div></div><div class="card"><div class="card-title">Types de déchets</div><div class="chart-wrap"><canvas id="ch-dpp-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Déchets PP</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-dpp']=this.value;fillTable('tbl-dpp')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-dpp',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-dpp','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-dpp','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-dpp','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Date</th><th>Déchets PP (kg)</th></tr></thead><tbody id="tbl-dpp-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Déchets PP</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Date</th><th>Déchets PP (kg)</th></tr></thead><tbody id="tbl-dpp-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-dechets-pe">
 <div class="breadcrumb">QHSE › Déchets</div>
@@ -1115,18 +1221,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Semaines</div><div class="metric-val" id="dpe-semaines">—</div><div class="metric-sub">suivi hebdomadaire</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Déchets PE par mois</div><div class="chart-wrap"><canvas id="ch-dpe-bar"></canvas></div></div><div class="card"><div class="card-title">Types de déchets</div><div class="chart-wrap"><canvas id="ch-dpe-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Déchets PE</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-dpe']=this.value;fillTable('tbl-dpe')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-dpe',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-dpe','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-dpe','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-dpe','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Date</th><th>Déchets PE (kg)</th></tr></thead><tbody id="tbl-dpe-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Déchets PE</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Date</th><th>Déchets PE (kg)</th></tr></thead><tbody id="tbl-dpe-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-accidents">
 <div class="breadcrumb">QHSE › Sécurité</div>
@@ -1139,18 +1235,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Machines impliquées</div><div class="metric-val" id="acc-machines">—</div><div class="metric-sub">zones à risque</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Accidents par mois</div><div class="chart-wrap"><canvas id="ch-accidents"></canvas></div></div><div class="card"><div class="card-title">Gravité</div><div class="chart-wrap"><canvas id="ch-accidents-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Accidents de Travail</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-accidents']=this.value;fillTable('tbl-accidents')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-accidents',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-accidents','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-accidents','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-accidents','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Employé</th><th>Machine / Lieu</th><th>Date Accident</th><th>Heure</th><th>Date Retour</th><th>Type AT</th><th>Nature Blessure</th></tr></thead><tbody id="tbl-accidents-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Accidents de Travail</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Employé</th><th>Machine / Lieu</th><th>Date Accident</th><th>Heure</th><th>Date Retour</th><th>Type AT</th><th>Nature Blessure</th></tr></thead><tbody id="tbl-accidents-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-securite">
 <div class="breadcrumb">QHSE › Sécurité</div>
@@ -1163,18 +1249,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Types</div><div class="metric-val" id="sec-types">—</div><div class="metric-sub">catégories équipements</div></div>
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Équipements Sécurité</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-securite']=this.value;fillTable('tbl-securite')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-securite',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-securite','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-securite','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-securite','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Équipement</th><th>Type</th><th>Quantité</th><th>Zone</th><th>Dernière Vérif.</th><th>Prochain Contrôle</th></tr></thead><tbody id="tbl-securite-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Équipements Sécurité</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Équipement</th><th>Type</th><th>Quantité</th><th>Zone</th><th>Dernière Vérif.</th><th>Prochain Contrôle</th></tr></thead><tbody id="tbl-securite-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-hygiene">
 <div class="breadcrumb">QHSE › Hygiène</div>
@@ -1187,18 +1263,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Zones</div><div class="metric-val" id="hyg-zones">—</div><div class="metric-sub">zones contrôlées</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Résultats hygiène</div><div class="chart-wrap"><canvas id="ch-hygiene"></canvas></div></div><div class="card"><div class="card-title">Contrôles par type</div><div class="chart-wrap"><canvas id="ch-hygiene-type"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Hygiène</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-hygiene']=this.value;fillTable('tbl-hygiene')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-hygiene',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-hygiene','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-hygiene','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-hygiene','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Type Contrôle</th><th>Résultat</th><th>Zone</th><th>Observations</th><th>Responsable</th></tr></thead><tbody id="tbl-hygiene-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Hygiène</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Type Contrôle</th><th>Résultat</th><th>Zone</th><th>Observations</th><th>Responsable</th></tr></thead><tbody id="tbl-hygiene-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-env-co2">
 <div class="breadcrumb">QHSE › Environnement</div>
@@ -1211,18 +1277,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">CO₂ total (t)</div><div class="metric-val" id="env-co2">—</div><div class="metric-sub">émissions estimées</div></div>
 </div><div class="card"><div class="card-title">Suivi environnement</div><div class="chart-wrap"><canvas id="ch-env"></canvas></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Environnement CO₂</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-env']=this.value;fillTable('tbl-env')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-env',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-env','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-env','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-env','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Conso Totale (kWh)</th><th>Conso Élec PP (kWh)</th><th>Prod PV (kWh)</th><th>Prod PV réelle</th><th>% PV</th><th>Facteur CO₂</th><th>CO₂ (t)</th></tr></thead><tbody id="tbl-env-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Environnement CO₂</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Conso Totale (kWh)</th><th>Conso Élec PP (kWh)</th><th>Prod PV (kWh)</th><th>Prod PV réelle</th><th>% PV</th><th>Facteur CO₂</th><th>CO₂ (t)</th></tr></thead><tbody id="tbl-env-body"></tbody></table></div>
 </div>
 </div><div class="section" id="qhse-env-eau">
 <div class="breadcrumb">QHSE › Environnement</div>
@@ -1235,18 +1291,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Période couverte</div><div class="metric-val" id="eau-periode">—</div><div class="metric-sub">jours de suivi</div></div>
 </div><div class="card"><div class="card-title">Évolution compteur eau</div><div class="chart-wrap"><canvas id="ch-eau"></canvas></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Gestion de l'Eau</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-eau']=this.value;fillTable('tbl-eau')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-eau',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-eau','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-eau','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-eau','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Relevé Compteur</th><th>Consommation</th><th>Observation</th></tr></thead><tbody id="tbl-eau-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Gestion de l'Eau</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Relevé Compteur</th><th>Consommation</th><th>Observation</th></tr></thead><tbody id="tbl-eau-body"></tbody></table></div>
 </div>
 </div></div><div class="section" id="qhse-env-pv">
 <div class="breadcrumb">QHSE › Environnement › Contribution TPV</div>
@@ -1265,18 +1311,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Mois couverts</div><div class="metric-val" id="fact-mois">—</div><div class="metric-sub">période de suivi</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Factures par mois</div><div class="chart-wrap"><canvas id="ch-factures"></canvas></div></div><div class="card"><div class="card-title">Répartition eau/élec</div><div class="chart-wrap"><canvas id="ch-factures-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Factures Eau & Électricité</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-factures']=this.value;fillTable('tbl-factures')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-factures',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-factures','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-factures','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-factures','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Type</th><th>Montant HT (DH)</th><th>Montant TTC (DH)</th><th>Conso (kWh)</th><th>Prix kWh</th><th>Coeff</th></tr></thead><tbody id="tbl-factures-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Factures Eau & Électricité</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Mois</th><th>Type</th><th>Montant HT (DH)</th><th>Montant TTC (DH)</th><th>Conso (kWh)</th><th>Prix kWh</th><th>Coeff</th></tr></thead><tbody id="tbl-factures-body"></tbody></table></div>
 </div>
 </div><div class="section" id="energie-transfo">
 <div class="breadcrumb">Énergie › Équipements</div>
@@ -1288,18 +1324,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   
 </div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Données Transformateurs</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-transfo']=this.value;fillTable('tbl-transfo')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-transfo',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-transfo','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-transfo','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-transfo','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Caractéristique</th><th>Transformateur 2 (TGBT 2)</th><th>Unité</th><th>Transformateur 1 (TGBT 1)</th><th>Unité</th></tr></thead><tbody id="tbl-transfo-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Données Transformateurs</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Caractéristique</th><th>Transformateur 2 (TGBT 2)</th><th>Unité</th><th>Transformateur 1 (TGBT 1)</th><th>Unité</th></tr></thead><tbody id="tbl-transfo-body"></tbody></table></div>
 </div>
 </div><div class="section" id="energie-solaire">
 <div class="breadcrumb">Énergie › Solaire</div>
@@ -1311,18 +1337,8 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   
 </div><div class="card"><div class="card-title">Paramètres installation solaire</div><div class="chart-wrap"><canvas id="ch-solaire"></canvas></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Données Solaires</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-solaire']=this.value;fillTable('tbl-solaire')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-solaire',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-solaire','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-solaire','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-solaire','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Paramètre</th><th>Valeur</th><th>Unité</th><th>Description</th></tr></thead><tbody id="tbl-solaire-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Données Solaires</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Paramètre</th><th>Valeur</th><th>Unité</th><th>Description</th></tr></thead><tbody id="tbl-solaire-body"></tbody></table></div>
 </div>
 </div><div class="section" id="energie-parc">
 <div class="breadcrumb">Énergie › Parc Machines</div>
@@ -1335,20 +1351,10 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   <div class="metric"><div class="metric-label">Tension dominante</div><div class="metric-val" id="parc-tension">—</div><div class="metric-sub">V</div></div>
 </div><div class="grid-2"><div class="card"><div class="card-title">Puissance par machine</div><div class="chart-wrap"><canvas id="ch-parc"></canvas></div></div><div class="card"><div class="card-title">Répartition</div><div class="chart-wrap"><canvas id="ch-parc-pie"></canvas></div></div></div>
 <div class="card">
-  <div class="tbl-header">
-    <div class="tbl-title">Parc Machines Électriques</div>
-    <div class="tbl-filters">
-      <select class="month-select" onchange="tblMonths['tbl-parc']=this.value;fillTable('tbl-parc')" style="margin-right:.4rem;"><option value="all">Tous les mois</option><option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option><option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option><option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select>
-      <select class="sort-select" onchange="setSortDir('tbl-parc',this.value)" title="Ordre de tri" style="margin-right:.4rem;"><option value="1">↑ Croissant</option><option value="-1">↓ Décroissant</option></select>
-      
-      <button class="yr-btn active" onclick="setYr('tbl-parc','all',this)">Toutes</button>
-      <button class="yr-btn" onclick="setYr('tbl-parc','2025',this)">2025</button>
-      <button class="yr-btn" onclick="setYr('tbl-parc','2026',this)">2026</button>
-    </div>
-  </div>
-  <div class="tbl-wrap"><table><thead><tr><th>Machine</th><th>Marque</th><th>Type</th><th>Puissance (kW)</th><th>Intensité</th><th>Tension</th><th>Série</th></tr></thead><tbody id="tbl-parc-body"></tbody></table></div>
+  <div class="tbl-header"><div class="tbl-title">Parc Machines Électriques</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Machine</th><th>Marque</th><th>Type</th><th>Puissance (kW)</th><th>Intensité</th><th>Tension</th><th>Série</th></tr></thead><tbody id="tbl-parc-body"></tbody></table></div>
 </div>
-</div><div class="rubrique" id="rub-about">
+<div class="rubrique" id="rub-about">
 <div style="padding:.5rem 1rem 0;">
   <div class="page-title" style="margin-bottom:1.5rem;">À propos</div>
 </div>
@@ -1394,6 +1400,7 @@ th.sortable.desc::after{content:' ↓';opacity:1;color:var(--accent);}
   </div>
 
   
+</div>
 </div>
 
 <div class="section" id="stock-inv-mp-pf">
@@ -2034,6 +2041,9 @@ function showSection(id){
   sec.classList.add('active');
   var btn=document.querySelector('[data-sid="'+id+'"]');
   if(btn) btn.classList.add('active');
+  // Stock PE: charger inventaire local
+  if(id==='stock-pe' && typeof peRender==='function'){ setTimeout(peRender,100); }
+
   // Fill table
   var tid=TMAP[id];
   if(tid){
@@ -2327,12 +2337,13 @@ function fillTable(tid){
       var total = normNum(r[1])+normNum(r[2])+normNum(r[3])+normNum(r[4])+normNum(r[5])+normNum(r[6])+normNum(r[7]);
       html+='<tr>';
       html+='<td><strong>'+fmtDate(r[0])+'</strong></td>';
-      html+='<td>'+fmtNum(band)+'</td>';
-      html+='<td>'+fmtNum(filb)+'</td>';
-      html+='<td>'+fmtNum(filc)+'</td>';
-      html+='<td>'+fmtNum(fic)+'</td>';
-      html+='<td>'+fmtNum(cord)+'</td>';
-      html+='<td>'+fmtNum(emb)+'</td>';
+      html+='<td>'+fmtNum(r[1])+'</td>';
+      html+='<td>'+fmtNum(r[2])+'</td>';
+      html+='<td>'+fmtNum(r[3])+'</td>';
+      html+='<td>'+fmtNum(r[4])+'</td>';
+      html+='<td>'+fmtNum(r[5])+'</td>';
+      html+='<td>'+fmtNum(r[6])+'</td>';
+      html+='<td>'+fmtNum(r[7])+'</td>';
       html+='<td><strong style="color:var(--accent)">'+fmtNum(total)+'</strong></td>';
       html+='</tr>';
     });
