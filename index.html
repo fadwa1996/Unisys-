@@ -2553,19 +2553,25 @@ function normalizeRows(tid, rawRows){
   if(tid==='tbl-conso-pp'||tid==='tbl-conso-pe'){
     var out=[];
     rows.forEach(function(r){
-      // Structure réelle: col0=Date(JJ/MM/AAAA), col1=MP PP, col2=MP Vierge, col3=Mélange,
-      // col4=LLDPE, col5=Charge, col6=Additive, col7=Colorant
-      // col8..= Consommation Mensuelle (récap à ignorer)
-      var d=normDate(String(r[0]||''));
+      // Chercher la date dans les 3 premières colonnes
+      var d=''; var dCol=-1;
+      for(var ci=0;ci<Math.min(r.length,3);ci++){
+        var nd=normDate(String(r[ci]||''));
+        if(nd){ d=nd; dCol=ci; break; }
+      }
       if(!d) return;
-      // Ignorer lignes recap mensuel (col8+ ont des valeurs)
-      if(normNum(r[8])>0||normNum(r[9])>0) return;
-      // Valeurs journalières
-      var vals=[normNum(r[1]),normNum(r[2]),normNum(r[3]),normNum(r[4]),normNum(r[5]),normNum(r[6]),normNum(r[7])];
-      if(!vals.some(function(v){return v>0;})) return;
-      var row=[d];
-      vals.forEach(function(v){ row.push(v); });
-      out.push(row);
+      // Valeurs MP: colonnes après la date
+      var v1=normNum(r[dCol+1]||0);
+      var v2=normNum(r[dCol+2]||0);
+      var v3=normNum(r[dCol+3]||0);
+      var v4=normNum(r[dCol+4]||0);
+      var v5=normNum(r[dCol+5]||0);
+      var v6=normNum(r[dCol+6]||0);
+      var v7=normNum(r[dCol+7]||0);
+      // Ignorer lignes recap mensuel (colonnes récap ont des grandes valeurs)
+      if(normNum(r[dCol+8]||0)>0||normNum(r[dCol+9]||0)>0) return;
+      if(v1+v2+v3+v4+v5+v6+v7===0) return;
+      out.push([d, v1, v2, v3, v4, v5, v6, v7]);
     });
     return out;
   }
