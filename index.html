@@ -1354,6 +1354,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="tbl-header"><div class="tbl-title">Parc Machines Électriques</div></div>
 <div class="tbl-wrap"><table><thead><tr><th>Machine</th><th>Marque</th><th>Type</th><th>Puissance (kW)</th><th>Intensité</th><th>Tension</th><th>Série</th></tr></thead><tbody id="tbl-parc-body"></tbody></table></div>
 </div>
+</div>
+
 <div class="rubrique" id="rub-about">
 <div style="padding:.5rem 1rem 0;">
   <div class="page-title" style="margin-bottom:1.5rem;">À propos</div>
@@ -2010,7 +2012,22 @@ var currentRub = 'prod';
 function showRubrique(key, btn){
   document.querySelectorAll('.rubrique').forEach(r=>r.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('rub-'+key).classList.add('active');
+  var rub = document.getElementById('rub-'+key);
+  if(rub) rub.classList.add('active');
+  // Rendre aussi visible les sections orphelines (hors rubrique) correspondant à cette rubrique
+  var prefixes = {'prod':['prod-'],'stock':['stock-'],'qhse':['qhse-'],'energie':['energie-']};
+  if(prefixes[key]){
+    document.querySelectorAll('.section').forEach(function(sec){
+      prefixes[key].forEach(function(pfx){
+        if(sec.id && sec.id.startsWith(pfx)){
+          // S'assurer que la section est accessible en la plaçant dans le bon contexte
+          if(!sec.closest('.rubrique') || !sec.closest('.rubrique').classList.contains('active')){
+            sec.style.display = '';
+          }
+        }
+      });
+    });
+  }
   if(btn) btn.classList.add('active');
   currentRub = key;
   if(key==='about'){ document.getElementById('subNav').innerHTML=''; return; }
@@ -2039,6 +2056,11 @@ function showSection(id){
   var sec=document.getElementById(id);
   if(!sec) return;
   sec.classList.add('active');
+  // Si la section est dans rub-about (orpheline), s'assurer qu'elle est visible
+  var parentRub = sec.closest('.rubrique');
+  if(parentRub && !parentRub.classList.contains('active')){
+    parentRub.classList.add('active');
+  }
   var btn=document.querySelector('[data-sid="'+id+'"]');
   if(btn) btn.classList.add('active');
   // Stock PE: charger inventaire local
