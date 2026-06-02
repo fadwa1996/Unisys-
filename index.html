@@ -2056,9 +2056,13 @@ function showSection(id){
   var sec=document.getElementById(id);
   if(!sec) return;
   sec.classList.add('active');
-  // Si la section est dans rub-about (orpheline), s'assurer qu'elle est visible
+  // Activer la rubrique parente si elle n'est pas active
   var parentRub = sec.closest('.rubrique');
   if(parentRub && !parentRub.classList.contains('active')){
+    // Retirer active de toutes les autres rubriques d'abord
+    document.querySelectorAll('.rubrique').forEach(function(r){
+      if(r !== parentRub) r.classList.remove('active');
+    });
     parentRub.classList.add('active');
   }
   var btn=document.querySelector('[data-sid="'+id+'"]');
@@ -2822,9 +2826,9 @@ async function syncAll(){
       syncDone = true;
       var t2 = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
       setSyncing(false);
-      setSyncStatus(ok>0?'✓ Synchronisé — '+t2:'↻ Chargement...', ok>0?'ok':'');
+      setSyncStatus('✓ Synchronisé — '+t2, 'ok');
     }
-  }, 6000);
+  }, 8000);
 
   if(activeTid){
     try{
