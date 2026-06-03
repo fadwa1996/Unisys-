@@ -1416,14 +1416,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="metric"><div class="metric-label">En tonnes</div><div class="metric-val accent" id="invmpf-tonnes">—</div><div class="metric-sub">tonnes</div></div>
 
 
-<div class="rubrique" id="rub-admin">
-  <div class="section active" id="admin-section">
-    <div id="admin-panel" style="padding:1rem">
-      <div class="page-title" style="margin-bottom:1rem">Administration</div>
-      <div id="admin-content"></div>
-    </div>
-  </div>
-</div>
+
 <div class="rubrique" id="rub-about">
   <div class="section active" id="about-section">
     <div style="padding:2rem;max-width:800px">
@@ -1432,7 +1425,18 @@ document.addEventListener('DOMContentLoaded', function(){
       <p style="color:var(--muted)">Développée par Fadwa Boukachaba</p>
     </div>
   </div>
+
+
 </div></main>
+<div class="rubrique" id="rub-admin">
+  <div class="section active" id="admin-section">
+    <div id="admin-panel" style="padding:1rem">
+      <div class="page-title" style="margin-bottom:1rem">Administration</div>
+      <div id="admin-content"></div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 
@@ -1538,7 +1542,7 @@ var SYNC_MAP = {
   'tbl-stock-mag':   {id:'1jtijFCrL2U3rLzEskh7iv5mBNbsN4yAtwOXQkoYOBPQ', tab:'Stock Magasin'},
   'tbl-inv-elec':    {id:'1jtijFCrL2U3rLzEskh7iv5mBNbsN4yAtwOXQkoYOBPQ', tab:'Atelier Electrique'},
   'tbl-inv-mp-pf':   {id:'1jtijFCrL2U3rLzEskh7iv5mBNbsN4yAtwOXQkoYOBPQ', tab:'Inventaire MP PF'},
-  'tbl-stock-pe':    {id:'1jtijFCrL2U3rLzEskh7iv5mBNbsN4yAtwOXQkoYOBPQ', tab:'Stock PE'},
+  'tbl-stock-pe':    {id:'1jtijFCrL2U3rLzEskh7iv5mBNbsN4yAtwOXQkoYOBPQ', tab:'STOCK PE'},
   'tbl-dpp':         {id:'1WPnXDH3JvvsZdAQw3QskS2m4bH0UUB9ZR8jLIXNEa5Y', tab:'Déchet PP'},
   'tbl-dpe':         {id:'1WPnXDH3JvvsZdAQw3QskS2m4bH0UUB9ZR8jLIXNEa5Y', tab:'Déchet PE'},
   'tbl-accidents':   {id:'1WPnXDH3JvvsZdAQw3QskS2m4bH0UUB9ZR8jLIXNEa5Y', tab:'Accidents de Travail'},
@@ -2012,6 +2016,9 @@ var currentRub = 'prod';
 function showRubrique(key, btn){
   document.querySelectorAll('.rubrique').forEach(r=>r.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  // Remontre main si on quitte admin
+  var mainEl2 = document.getElementById('mainContent');
+  if(mainEl2) mainEl2.style.display = '';
   var rub = document.getElementById('rub-'+key);
   if(rub) rub.classList.add('active');
   // Rendre aussi visible les sections orphelines (hors rubrique) correspondant à cette rubrique
@@ -2031,7 +2038,14 @@ function showRubrique(key, btn){
   if(btn) btn.classList.add('active');
   currentRub = key;
   if(key==='about'){ document.getElementById('subNav').innerHTML=''; return; }
-  if(key==='admin'){ document.getElementById('subNav').innerHTML=''; setTimeout(function(){ renderAdmin(); checkStockAlerts(); },100); return; }
+  if(key==='admin'){
+    document.getElementById('subNav').innerHTML='';
+    // Masquer main, montrer rub-admin
+    var mainEl = document.getElementById('mainContent');
+    if(mainEl) mainEl.style.display = 'none';
+    setTimeout(function(){ renderAdmin(); checkStockAlerts(); },100);
+    return;
+  }
   buildSubNav(key);
 }
 
@@ -2949,6 +2963,9 @@ function goHome(){
   // Show first rubrique (prod)
   document.querySelectorAll('.rubrique').forEach(r=>r.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  // Remontre main si on quitte admin
+  var mainEl2 = document.getElementById('mainContent');
+  if(mainEl2) mainEl2.style.display = '';
   document.getElementById('rub-prod').classList.add('active');
   document.getElementById('nav-prod').classList.add('active');
   currentRub='prod';
@@ -3961,6 +3978,8 @@ window.addEventListener('load',function(){
 <div class="tbl-wrap"><table class="data-table"><thead><tr id="tbl-inv-mp-pf-head"></tr></thead><tbody id="tbl-inv-mp-pf-body"><tr><td colspan="20" class="tbl-empty">Chargement...</td></tr></tbody></table></div>
 
 </div>
+
+
 
 <!-- FLOATING NAV -->
 <div class="float-nav" id="floatNav" style="display:none;">
