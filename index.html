@@ -2040,10 +2040,16 @@ function showRubrique(key, btn){
   if(key==='about'){ document.getElementById('subNav').innerHTML=''; return; }
   if(key==='admin'){
     document.getElementById('subNav').innerHTML='';
-    // Masquer main, montrer rub-admin
     var mainEl = document.getElementById('mainContent');
     if(mainEl) mainEl.style.display = 'none';
-    setTimeout(function(){ renderAdmin(); checkStockAlerts(); },100);
+    var rubAdmin = document.getElementById('rub-admin');
+    if(rubAdmin){ rubAdmin.style.display='block'; rubAdmin.classList.add('active'); }
+    setTimeout(function(){
+      var c=document.getElementById('admin-content');
+      console.log('admin-content:', c, 'rub-admin:', document.getElementById('rub-admin'));
+      renderAdmin();
+      checkStockAlerts();
+    },100);
     return;
   }
   buildSubNav(key);
