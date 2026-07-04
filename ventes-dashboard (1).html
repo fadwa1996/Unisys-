@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ventes & Stock — Corderies de la Koutoubia</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--s2:#1c2128;--border:#30363d;--accent:#e3b341;--green:#3fb950;--blue:#58a6ff;--danger:#f85149;--purple:#bc8cff;--text:#e6edf3;--muted:#8b949e;--r:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.logo{font-size:16px;font-weight:700;color:var(--accent);}.logo span{color:var(--muted);font-size:12px;font-weight:400;margin-left:6px;}
+.badge{margin-left:auto;background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.3);color:var(--accent);padding:4px 12px;border-radius:14px;font-size:11px;font-weight:600;}
+.tabs{display:flex;gap:2px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:7px 16px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.tab.active{background:var(--accent);color:#000;font-weight:600;}
+.tab:hover:not(.active){background:rgba(255,255,255,.06);color:var(--text);}
+.container{max-width:1200px;margin:0 auto;padding:24px 20px 80px;}
+.page{display:none;}.page.active{display:block;}
+.yr-btns{display:flex;gap:8px;margin-bottom:20px;}
+.yr-btn{padding:6px 16px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s;}
+.yr-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;}
+.metric-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.metric-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px;}
+.metric-sub{font-size:11px;color:var(--muted);}
+.orange{color:var(--accent);}.green{color:var(--green);}.blue{color:var(--blue);}.purple{color:var(--purple);}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
+.chart-card.full{grid-column:1/-1;}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;}
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;}
+.form-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.top-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:var(--r);font-size:14px;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.btn{padding:12px 24px;border-radius:var(--r);border:none;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;}
+.btn-orange{background:var(--accent);color:#000;}.btn-orange:hover{opacity:.88;}.btn-orange:disabled{opacity:.4;}
+.htable-wrap{overflow-x:auto;margin-top:8px;}
+.htable{width:100%;border-collapse:collapse;font-size:12px;}
+.htable th{color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.htable td{padding:7px 10px;border-bottom:1px solid rgba(48,54,61,.4);}
+.htable tr:hover td{background:rgba(255,255,255,.02);}
+.search-bar{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:var(--r);font-size:13px;outline:none;margin-bottom:12px;}
+.search-bar:focus{border-color:var(--accent);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#000;padding:11px 22px;border-radius:22px;font-weight:600;font-size:13px;transition:transform .3s;z-index:999;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--danger);color:#fff;}
+@media(max-width:768px){.metrics{grid-template-columns:1fr 1fr;}.charts-grid{grid-template-columns:1fr;}.top-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">📦 Ventes & Stock <span>— Corderies de la Koutoubia</span></div></div>
+  <div class="badge" id="today-badge"></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('distribution')">📊 Distribution</button>
+  <button class="tab" onclick="showTab('commandes')">📋 Commandes</button>
+  <button class="tab" onclick="showTab('clients')">👥 Clients</button>
+  <button class="tab" onclick="showTab('fournisseurs')">🏭 Fournisseurs</button>
+  <button class="tab" onclick="showTab('produits')">📦 Produits</button>
+</div>
+<div class="container">
+
+<!-- DISTRIBUTION -->
+<div class="page active" id="page-distribution">
+  <div class="yr-btns">
+    <button class="yr-btn active" onclick="setYr('dist',2025,this)">2025</button>
+    <button class="yr-btn" onclick="setYr('dist',2026,this)">2026</button>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Distribué</div><div class="metric-val orange" id="dist-total">—</div><div class="metric-sub">kg livrés</div></div>
+    <div class="metric"><div class="metric-label">Nb Clients</div><div class="metric-val blue" id="dist-clients">—</div><div class="metric-sub">clients actifs</div></div>
+    <div class="metric"><div class="metric-label">Meilleur Client</div><div class="metric-val green" id="dist-best">—</div><div class="metric-sub">volume max</div></div>
+    <div class="metric"><div class="metric-label">Moy. Mensuelle</div><div class="metric-val purple" id="dist-moy">—</div><div class="metric-sub">kg / mois</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card full"><div class="chart-title">Distribution mensuelle (kg)</div><canvas id="chart-dist-bar" height="80"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Top clients (kg)</div><canvas id="chart-dist-clients" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Top produits distribués</div><canvas id="chart-dist-prods" height="200"></canvas></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Nouvelle livraison</div>
+    <div class="top-row">
+      <div class="field"><label>Date</label><input type="date" id="dist-date"></div>
+      <div class="field"><label>Client</label><input type="text" id="dist-client" list="clients-list" placeholder="Nom du client"><datalist id="clients-list"></datalist></div>
+      <div class="field"><label>Désignation</label><input type="text" id="dist-desig" placeholder="Produit"></div>
+    </div>
+    <div class="top-row" style="margin-top:10px;">
+      <div class="field"><label>Quantité (unités)</label><input type="number" id="dist-qte" min="0" step="1" placeholder="0"></div>
+      <div class="field"><label>Total (kg)</label><input type="number" id="dist-kg" min="0" step="0.1" placeholder="0"></div>
+      <div class="field"><label>BL N°</label><input type="text" id="dist-bl" placeholder="Numéro bon de livraison"></div>
+    </div>
+    <button class="btn btn-orange" id="dist-btn" onclick="saveDist()">✓ Enregistrer livraison</button>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Historique livraisons</div>
+    <input class="search-bar" id="dist-search" placeholder="🔍 Rechercher client, produit..." oninput="filterDist()">
+    <div class="htable-wrap" id="dist-hist"></div>
+  </div>
+</div>
+
+<!-- COMMANDES -->
+<div class="page" id="page-commandes">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Commandes en cours</div><div class="metric-val orange" id="cmd-total">—</div><div class="metric-sub">total commandes</div></div>
+    <div class="metric"><div class="metric-label">En attente</div><div class="metric-val blue" id="cmd-attente">—</div><div class="metric-sub">à livrer</div></div>
+    <div class="metric"><div class="metric-label">Ce mois</div><div class="metric-val green" id="cmd-mois">—</div><div class="metric-sub">nouvelles commandes</div></div>
+    <div class="metric"><div class="metric-label">Urgentes</div><div class="metric-val purple" id="cmd-urgent">0</div><div class="metric-sub">délai dépassé</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Nouvelle commande</div>
+    <div class="top-row">
+      <div class="field"><label>Date commande</label><input type="date" id="cmd-date"></div>
+      <div class="field"><label>Client</label><input type="text" id="cmd-client" list="clients-list2" placeholder="Nom du client"><datalist id="clients-list2"></datalist></div>
+      <div class="field"><label>Désignation produit</label><input type="text" id="cmd-desig" placeholder="Produit commandé"></div>
+    </div>
+    <div class="top-row" style="margin-top:10px;">
+      <div class="field"><label>Quantité</label><input type="number" id="cmd-qte" min="0" step="1" placeholder="0"></div>
+      <div class="field"><label>Date livraison souhaitée</label><input type="date" id="cmd-livraison"></div>
+      <div class="field"><label>Priorité</label><select id="cmd-priorite"><option>Normal</option><option>Urgent</option><option>Très urgent</option></select></div>
+    </div>
+    <div class="field" style="margin-top:10px"><label>Observations</label><input type="text" id="cmd-obs" placeholder="Notes, conditions..."></div>
+    <button class="btn btn-orange" id="cmd-btn" onclick="saveCmd()">✓ Enregistrer commande</button>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Commandes récentes</div>
+    <div class="htable-wrap" id="cmd-hist"><div style="text-align:center;color:var(--muted);padding:20px">Chargement...</div></div>
+  </div>
+</div>
+
+<!-- CLIENTS -->
+<div class="page" id="page-clients">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Clients</div><div class="metric-val orange" id="cli-total">85</div><div class="metric-sub">dans la base</div></div>
+    <div class="metric"><div class="metric-label">Actifs 2025</div><div class="metric-val blue" id="cli-actifs">—</div><div class="metric-sub">avec livraisons</div></div>
+    <div class="metric"><div class="metric-label">N°1 Client</div><div class="metric-val green" id="cli-top">CK SIDI BIBI</div><div class="metric-sub">volume max</div></div>
+    <div class="metric"><div class="metric-label">Villes</div><div class="metric-val purple" id="cli-villes">—</div><div class="metric-sub">zones couvertes</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Répertoire clients</div>
+    <input class="search-bar" id="cli-search" placeholder="🔍 Rechercher client, ville..." oninput="filterClients()">
+    <div class="htable-wrap" id="cli-table"></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Nouveau client</div>
+    <div class="top-row">
+      <div class="field"><label>Raison sociale</label><input type="text" id="cli-nom" placeholder="Nom du client"></div>
+      <div class="field"><label>Ville</label><input type="text" id="cli-ville" placeholder="Ville"></div>
+      <div class="field"><label>Téléphone</label><input type="text" id="cli-tel" placeholder="N° téléphone"></div>
+    </div>
+    <div class="field" style="margin-top:10px"><label>Email</label><input type="email" id="cli-mail" placeholder="adresse@mail.com"></div>
+    <button class="btn btn-orange" id="cli-btn" onclick="saveClient()">✓ Ajouter client</button>
+  </div>
+</div>
+
+<!-- FOURNISSEURS -->
+<div class="page" id="page-fournisseurs">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Fourn. MP</div><div class="metric-val orange" id="four-mp">8</div><div class="metric-sub">matières premières</div></div>
+    <div class="metric"><div class="metric-label">Fourn. Divers</div><div class="metric-val blue" id="four-div">82</div><div class="metric-sub">fournisseurs divers</div></div>
+    <div class="metric"><div class="metric-label">Total</div><div class="metric-val green" id="four-total">90</div><div class="metric-sub">dans la base</div></div>
+    <div class="metric"><div class="metric-label">Nouveaux</div><div class="metric-val purple" id="four-new">0</div><div class="metric-sub">ce mois</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Fournisseurs MP</div>
+    <input class="search-bar" id="fourmp-search" placeholder="🔍 Rechercher..." oninput="filterFournMP()">
+    <div class="htable-wrap" id="fourmp-table"></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Nouveau fournisseur</div>
+    <div class="top-row">
+      <div class="field"><label>Raison sociale</label><input type="text" id="four-nom" placeholder="Nom"></div>
+      <div class="field"><label>Type</label><select id="four-type"><option>MP</option><option>Divers</option></select></div>
+      <div class="field"><label>Produit/Service</label><input type="text" id="four-prod" placeholder="Ex: PP, PE, Emballage..."></div>
+    </div>
+    <div class="top-row" style="margin-top:10px;">
+      <div class="field"><label>Ville</label><input type="text" id="four-ville" placeholder="Ville"></div>
+      <div class="field"><label>Téléphone</label><input type="text" id="four-tel" placeholder="N° téléphone"></div>
+      <div class="field"><label>Email</label><input type="email" id="four-mail" placeholder="Email"></div>
+    </div>
+    <button class="btn btn-orange" id="four-btn" onclick="saveFourn()">✓ Ajouter fournisseur</button>
+  </div>
+</div>
+
+<!-- PRODUITS -->
+<div class="page" id="page-produits">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Produits</div><div class="metric-val orange" id="prod-total">60</div><div class="metric-sub">références</div></div>
+    <div class="metric"><div class="metric-label">PP</div><div class="metric-val blue" id="prod-pp">—</div><div class="metric-sub">produits PP</div></div>
+    <div class="metric"><div class="metric-label">PE</div><div class="metric-val green" id="prod-pe">—</div><div class="metric-sub">produits PE</div></div>
+    <div class="metric"><div class="metric-label">Actifs 2025</div><div class="metric-val purple" id="prod-actifs">—</div><div class="metric-sub">avec distribution</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Catalogue produits</div>
+    <input class="search-bar" id="prod-search" placeholder="🔍 Rechercher produit..." oninput="filterProduits()">
+    <div class="htable-wrap" id="prod-table"></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const app = initializeApp({apiKey:"AIzaSyCorderies_REPLACE_ME",authDomain:"unisys-koutoubia.firebaseapp.com",projectId:"unisys-koutoubia"});
+const db = getFirestore(app);
+
+const today = new Date().toISOString().split('T')[0];
+['dist','cmd','cli'].forEach(p=>{const el=document.getElementById(p+'-date');if(el)el.value=today;});
+document.getElementById('today-badge').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+
+const DIST_MOIS = {"Jan/2025": 224865.86999999997, "Fév/2025": 168980.60000000003, "Mar/2025": 179521.73999999996, "Avr/2025": 333871.20000000007, "Mai/2025": 576150.4700000001, "Jun/2025": 236103.80000000005, "Jul/2025": 432879.93999999994, "Aoû/2025": 479086.41, "Sep/2025": 517150.06000000006, "Oct/2025": 398562.1500000001, "Nov/2025": 318403.09, "Déc/2025": 224703.29999999996, "Jan/2026": 282665.85, "Fév/2026": 260652.06999999995, "Mar/2026": 278823.0, "Avr/2026": 456490.86000000004, "Mai/2026": 303234.55, "Jun/2026": 166331.0};
+const TOP_CLIENTS = {"CK SIDI BIBI": 1569424.74, "AHMED": 583331.13, "GDIRA": 444971.89999999997, "MUSTAPHA DUKALI": 360707.01, "AGIB": 316872.17, "GDIRA GHERBE": 283642.69, "MIRAGRI": 248636.0, "RAMOUCHE": 221611.80000000002, "AZIZ DUKALI": 163530.14999999997, "SIDID": 129449.09999999999, "MILOUDE DUKALI": 122877.68, "GDIRA BIOUGRA": 102160.09999999999};
+const TOP_PRODUITS = {"COLIS FICELLE 1000 NOIR": 340, "COLIS FPP COULEUR": 247, "COLIS FICELLE 500 NOIR": 137, "RLX PAILLAGE 120/30": 106, "COLIS CORD N.8": 100, "COLIS CORD N.10": 95, "COLIS FICELLE 1000 BLANCHE": 94, "COLIS BANDELETTE BLANCHE": 93, "COLIS CORD N.6": 81, "COLIS FPP GF BLANC": 77};
+const DISTRIBUTION = [{"date": "03/01/2025", "client": "COOPERATIVE", "qte": 497.0, "designation": "COOPERATIVE NON TORSADE", "kg": 8800.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 216.0, "designation": "COLIS CORD N.6", "kg": 1022.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 163.0, "designation": "COLIS CORD N.8", "kg": 1010.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 156.0, "designation": "COLIS CORD N.10", "kg": 504.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 167.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 3004.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 25.0, "designation": "COLIS BANDELETTE JAUNE", "kg": 507.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 354.0, "designation": "COLIS FPP COULEUR", "kg": 1015.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 100.0, "designation": "COLIS FICELLE 350", "kg": 1000.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 92.0, "designation": "FIL LINGERIE BLANC", "kg": 583.0}, {"date": "03/01/2025", "client": "AGIB", "qte": 28.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 1011.9}, {"date": "04/01/2025", "client": "MUSTAPHA DUKALI", "qte": 21.0, "designation": "COLIS MON 1ER CHOIX N.16 200M", "kg": 1023.5}, {"date": "04/01/2025", "client": "MUSTAPHA DUKALI", "qte": 27.0, "designation": "COLIS MON 1ER CHOIX N.20 200M", "kg": 1014.8}, {"date": "04/01/2025", "client": "MUSTAPHA DUKALI", "qte": 400.0, "designation": "COLIS FICELLE 1000", "kg": 4000.0}, {"date": "04/01/2025", "client": "MUSTAPHA DUKALI", "qte": 400.0, "designation": "COLIS FICELLE 500", "kg": 4000.0}, {"date": "04/01/2025", "client": "MASMODI MED", "qte": 20.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 724.1}, {"date": "04/01/2025", "client": "MASMODI MED", "qte": 45.0, "designation": "COLIS MON 2EME CHOIX N.20", "kg": 987.0}, {"date": "04/01/2025", "client": "MASMODI MED", "qte": 30.0, "designation": "COLIS MON 2EME CHOIX N.22", "kg": 780.0}, {"date": "07/01/2025", "client": "GDIRA", "qte": 26.0, "designation": "RLX PAILLAGE 120/40", "kg": 1304.3}, {"date": "07/01/2025", "client": "CHTOUKA", "qte": 400.0, "designation": "COLIS FICELLE 1000", "kg": 4000.0}, {"date": "07/01/2025", "client": "CHTOUKA", "qte": 200.0, "designation": "COLIS FICELLE 1000", "kg": 2000.0}, {"date": "08/01/2025", "client": "MUSTAPHA DUKALI", "qte": 195.0, "designation": "COLIS CORD N.6", "kg": 983.0}, {"date": "08/01/2025", "client": "MUSTAPHA DUKALI", "qte": 151.0, "designation": "COLIS CORD N.8", "kg": 1000.0}, {"date": "08/01/2025", "client": "MUSTAPHA DUKALI", "qte": 319.0, "designation": "COLIS CORD N.10", "kg": 1010.0}, {"date": "08/01/2025", "client": "MUSTAPHA DUKALI", "qte": 700.0, "designation": "COLIS FICELLE 500", "kg": 7000.0}, {"date": "08/01/2025", "client": "BAMHAOUD", "qte": 100.0, "designation": "COLIS FPP COULEUR", "kg": 283.0}, {"date": "08/01/2025", "client": "BAMHAOUD", "qte": 50.0, "designation": "COLIS CORD N.6", "kg": 242.0}, {"date": "08/01/2025", "client": "BAMHAOUD", "qte": 50.0, "designation": "COLIS CORD N.8", "kg": 308.0}, {"date": "08/01/2025", "client": "BAMHAOUD", "qte": 30.0, "designation": "COLIS FPP GF JAUNE", "kg": 145.0}, {"date": "08/01/2025", "client": "AGIB", "qte": 202.0, "designation": "FIL LINGERIE", "kg": 1375.0}, {"date": "09/01/2025", "client": "ELJAZOULI", "qte": 238.0, "designation": "RLX PAILLAGE 2M/200/100", "kg": 10007.6}, {"date": "09/01/2025", "client": "ADMI", "qte": 54.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "09/01/2025", "client": "GDIRA AIT MELLOULE", "qte": 47.0, "designation": "RLX PAILLAGE 140/30", "kg": 0}, {"date": "09/01/2025", "client": "GDIRA AIT MELLOULE", "qte": 70.0, "designation": "RLX PAILLAGE 140/40", "kg": 4049.15}, {"date": "10/01/2025", "client": "AGIB", "qte": 65.0, "designation": "COLIS CORD N.12", "kg": 903.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 26.0, "designation": "COLIS CORD N.14", "kg": 456.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 26.0, "designation": "COLIS CORD N.16", "kg": 487.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 23.0, "designation": "COLIS CORD N.18", "kg": 507.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 20.0, "designation": "COLIS CORD N.20", "kg": 440.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 7.0, "designation": "COLIS CORD N.22", "kg": 158.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 100.0, "designation": "COLIS FICELLE 350", "kg": 1000.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 109.0, "designation": "FIL LINGERIE BLANC", "kg": 730.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 353.0, "designation": "COLIS FPP COULEUR", "kg": 1001.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 360.0, "designation": "COLIS FPP BLANC", "kg": 1010.0}, {"date": "10/01/2025", "client": "AGIB", "qte": 12.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 131.4}, {"date": "10/01/2025", "client": "AGIB", "qte": 2.0, "designation": "COLIS MON 2EME CHOIX N.22", "kg": 76.4}, {"date": "10/01/2025", "client": "BAMHAOUD", "qte": 60.0, "designation": "COLIS FPP GF BLANC", "kg": 333.0}, {"date": "10/01/2025", "client": "GDIRA MARRAKECH", "qte": 40.0, "designation": "RLX PAILLAGE 120/500/80", "kg": 2000.0}, {"date": "10/01/2025", "client": "ADMI", "qte": 28.0, "designation": "RLX PAILLAGE 120/30", "kg": 1033.4}, {"date": "10/01/2025", "client": "ADMI", "qte": 20.0, "designation": "RLX PAILLAGE 140/40", "kg": 1120.8}, {"date": "11/01/2025", "client": "ADMI", "qte": 40.0, "designation": "RLX PAILLAGE 140/40", "kg": 0}, {"date": "15/01/2025", "client": "SIDID", "qte": 16.0, "designation": "RLX PAILLAGE 1M/30", "kg": 509.6}, {"date": "15/01/2025", "client": "SIDID", "qte": 13.0, "designation": "RLX PAILLAGE 1M/40", "kg": 508.8}, {"date": "15/01/2025", "client": "SIDID", "qte": 55.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "15/01/2025", "client": "SIDID", "qte": 11.0, "designation": "RLX PAILLAGE 120/40", "kg": 540.0}, {"date": "15/01/2025", "client": "SIDID", "qte": 12.0, "designation": "RLX PAILLAGE 140/30", "kg": 526.0}, {"date": "15/01/2025", "client": "SIDID", "qte": 8.0, "designation": "RLX PAILLAGE 140/40", "kg": 414.7}, {"date": "15/01/2025", "client": "SIDID", "qte": 20.0, "designation": "RLX PAILLAGE 120/80", "kg": 1007.9}, {"date": "15/01/2025", "client": "SIDID", "qte": 200.0, "designation": "COLIS FICELLE 1000", "kg": 2000.0}, {"date": "15/01/2025", "client": "GDIRA AIT IAAZA", "qte": 160.0, "designation": "RLX PAILLAGE 1M/300", "kg": 0}, {"date": "15/01/2025", "client": "GDIRA", "qte": 1000.0, "designation": "COLIS FICELLE 1000", "kg": 10000.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 348.0, "designation": "COLIS FPP COULEUR", "kg": 1003.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 178.0, "designation": "COLIS CORD N.6", "kg": 1003.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 339.0, "designation": "COLIS CORD N.8", "kg": 2013.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 593.0, "designation": "COLIS CORD N.10", "kg": 1007.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 15.0, "designation": "COLIS CORD N.12", "kg": 212.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 113.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 2020.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 12.0, "designation": "COLIS BANDELETTE BLEU", "kg": 213.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 11.0, "designation": "COLIS BANDELETTE VERT", "kg": 203.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 86.0, "designation": "COLIS FPP GF BLANC", "kg": 504.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 200.0, "designation": "COLIS FICELLE 500", "kg": 2000.0}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 36.0, "designation": "COLIS MON 1ER CHOIX N.12", "kg": 718.2}, {"date": "15/01/2025", "client": "AZIZ DUKALI", "qte": 20.0, "designation": "COLIS MON 1ER CHOIX N.6", "kg": 589.3}, {"date": "16/01/2025", "client": "AGIB", "qte": 156.0, "designation": "COLIS CORD N.6", "kg": 736.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 152.0, "designation": "COLIS CORD N.8", "kg": 1048.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 305.0, "designation": "COLIS CORD N.10", "kg": 1010.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 519.0, "designation": "COLIS FPP COULEUR", "kg": 1503.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 85.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 1505.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 56.0, "designation": "COLIS CORD N.12", "kg": 802.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 22.0, "designation": "COLIS CORD N.18", "kg": 440.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 21.0, "designation": "COLIS CORD N.20", "kg": 462.0}, {"date": "16/01/2025", "client": "AGIB", "qte": 35.0, "designation": "COLIS CORD N.22", "kg": 779.0}, {"date": "16/01/2025", "client": "MIRAGRI", "qte": 400.0, "designation": "COLIS FICELLE 1000 NOIR", "kg": 4000.0}, {"date": "17/01/2025", "client": "SIDID", "qte": 900.0, "designation": "COLIS FICELLE 1000", "kg": 9000.0}, {"date": "18/01/2025", "client": "ADMI", "qte": 50.0, "designation": "RLX PAILLAGE 140/40", "kg": 0}, {"date": "21/01/2025", "client": "MUSTAPHA DUKALI", "qte": 800.0, "designation": "COLIS FICELLE 500", "kg": 8000.0}, {"date": "21/01/2025", "client": "MUSTAPHA DUKALI", "qte": 115.0, "designation": "COLIS BANDELETTE", "kg": 2000.0}, {"date": "21/01/2025", "client": "SIDID", "qte": 1300.0, "designation": "COLIS FICELLE 1000", "kg": 13000.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 360.0, "designation": "COLIS CORD N.6", "kg": 1878.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 330.0, "designation": "COLIS CORD N.8", "kg": 2038.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 586.0, "designation": "COLIS CORD N.10", "kg": 2993.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 117.0, "designation": "COLIS BANDELETTE", "kg": 2073.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 179.0, "designation": "COLIS BANDELETTE", "kg": 1035.0}, {"date": "21/01/2025", "client": "TISSA FES", "qte": 1071.0, "designation": "COLIS FPP COULEUR", "kg": 3023.0}, {"date": "21/01/2025", "client": "SOUK SOUSS", "qte": 300.0, "designation": "COLIS FICELLE 1000", "kg": 3000.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 86.0, "designation": "COLIS BANDELETTE ROUGE", "kg": 1509.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 500.0, "designation": "COLIS FICELLE 500", "kg": 5000.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 27.0, "designation": "COLIS MON 2EME CHOIX N.4", "kg": 520.8}, {"date": "22/01/2025", "client": "AGIB", "qte": 14.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 506.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 23.0, "designation": "COLIS MON 2EME CHOIX N.20", "kg": 506.9}, {"date": "22/01/2025", "client": "AGIB", "qte": 20.0, "designation": "COLIS MON 2EME CHOIX N.22", "kg": 516.2}, {"date": "22/01/2025", "client": "AGIB", "qte": 22.0, "designation": "COLIS MON 1ER CHOIX N.4", "kg": 429.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 22.0, "designation": "COLIS MON 1ER CHOIX N.12", "kg": 439.17}, {"date": "22/01/2025", "client": "AGIB", "qte": 23.0, "designation": "COLIS MON 1ER CHOIX N.14", "kg": 418.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 14.0, "designation": "COLIS MON 1ER CHOIX N.18", "kg": 423.4}, {"date": "22/01/2025", "client": "AGIB", "qte": 2.0, "designation": "COLIS MON 1ER CHOIX N.6", "kg": 57.6}, {"date": "22/01/2025", "client": "GDIRA GHERBE", "qte": 54.0, "designation": "RLX PAILLAGE 160/40", "kg": 3545.0}, {"date": "22/01/2025", "client": "GDIRA MARRAKECH", "qte": 159.0, "designation": "RLX PAILLAGE 1M/30", "kg": 0}, {"date": "22/01/2025", "client": "GDIRA MARRAKECH", "qte": 209.0, "designation": "RLX PAILLAGE 1M/17", "kg": 0}, {"date": "22/01/2025", "client": "NAKHLA", "qte": 100.0, "designation": "COLIS FICELLE 1000", "kg": 1000.0}, {"date": "22/01/2025", "client": "BAMHAOUD", "qte": 30.0, "designation": "COLIS MON 1ER CHOIX N.6", "kg": 150.0}, {"date": "22/01/2025", "client": "BAMHAOUD", "qte": 60.0, "designation": "COLIS MON 1ER CHOIX N.8", "kg": 374.0}, {"date": "22/01/2025", "client": "BAMHAOUD", "qte": 300.0, "designation": "COLIS FPP COULEUR", "kg": 845.0}, {"date": "22/01/2025", "client": "BAMHAOUD", "qte": 50.0, "designation": "COLIS FPP GF JAUNE", "kg": 277.0}, {"date": "22/01/2025", "client": "BAMHAOUD", "qte": 20.0, "designation": "COLIS FPP GF BLANC", "kg": 110.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 183.0, "designation": "COLIS FPP BLANC", "kg": 506.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 146.0, "designation": "COLIS FPP GF BLANC", "kg": 833.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 109.0, "designation": "COLIS FPP GF JAUNE", "kg": 552.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 17.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 285.0}, {"date": "22/01/2025", "client": "AGIB", "qte": 22.0, "designation": "COLIS BANDELETTE ROUGE", "kg": 365.0}, {"date": "23/01/2025", "client": "AIT KESRI", "qte": 64.0, "designation": "COLIS FPP GF JAUNE", "kg": 349.0}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 56.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 2020.0}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 92.0, "designation": "COLIS MON 2EME CHOIX N.20", "kg": 0}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 56.0, "designation": "COLIS MON 2EME CHOIX N.24", "kg": 1518.5}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 79.0, "designation": "COLIS MON 2EME CHOIX N.22", "kg": 0}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 23.0, "designation": "COLIS MON 2EME CHOIX N.8", "kg": 556.7}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 68.0, "designation": "COLIS MON 2EME CHOIX N.16", "kg": 0}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 21.0, "designation": "COLIS MON 1ER CHOIX N.16 200M", "kg": 1025.8}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 28.0, "designation": "COLIS MON 1ER CHOIX N.20 200M", "kg": 1058.5}, {"date": "24/01/2025", "client": "TISSA FES", "qte": 15.0, "designation": "COLIS MON 1ER CHOIX N.18 200M", "kg": 462.3}, {"date": "25/01/2025", "client": "GDIRA BIOUGRA", "qte": 189.0, "designation": "RLX PAILLAGE 1M/30", "kg": 0}, {"date": "25/01/2025", "client": "GDIRA BIOUGRA", "qte": 248.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "25/01/2025", "client": "SAMI", "qte": 50.0, "designation": "RLX PAILLAGE 1M/30", "kg": 1575.5}, {"date": "25/01/2025", "client": "MUSTAPHA DUKALI", "qte": 1000.0, "designation": "COLIS FICELLE 1000", "kg": 10000.0}, {"date": "27/01/2025", "client": "GDIRA", "qte": 87.0, "designation": "RLX PAILLAGE 120/17", "kg": 0}, {"date": "27/01/2025", "client": "GDIRA MARRAKECH", "qte": 101.0, "designation": "RLX PAILLAGE 1M/17", "kg": 0}, {"date": "27/01/2025", "client": "COOPERATIVE", "qte": 182.0, "designation": "COOPERATIVE NON TORSADE", "kg": 3277.0}, {"date": "27/01/2025", "client": "COOPERATIVE", "qte": 591.0, "designation": "COOPERATIVE TORSADE", "kg": 6023.0}, {"date": "28/01/2025", "client": "BENI MELLAL", "qte": 200.0, "designation": "COLIS FICELLE 500", "kg": 2000.0}, {"date": "28/01/2025", "client": "BENI MELLAL", "qte": 2767.0, "designation": "COLIS FPP COULEUR", "kg": 8063.0}, {"date": "28/01/2025", "client": "AGIB", "qte": 174.0, "designation": "COLIS CORD N.10", "kg": 601.0}, {"date": "28/01/2025", "client": "AGIB", "qte": 28.0, "designation": "COLIS CORD N.4/4", "kg": 512.0}, {"date": "28/01/2025", "client": "AGIB", "qte": 164.0, "designation": "FIL LINGERIE BLANC", "kg": 1033.0}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 105.0, "designation": "COLIS MON 2EME CHOIX N.4", "kg": 0}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 42.0, "designation": "COLIS MON 2EME CHOIX N.8", "kg": 1004.5}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 68.0, "designation": "COLIS MON 2EME CHOIX N.16", "kg": 0}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 56.0, "designation": "COLIS MON 2EME CHOIX N.18", "kg": 0}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 95.0, "designation": "COLIS MON 2EME CHOIX N.20", "kg": 0}, {"date": "28/01/2025", "client": "MASMODI MED", "qte": 81.0, "designation": "COLIS MON 2EME CHOIX N.22", "kg": 0}, {"date": "31/01/2025", "client": "ADMI", "qte": 52.0, "designation": "RLX PAILLAGE 120/17", "kg": 1220.15}, {"date": "05/02/2025", "client": "AGRILITE", "qte": 27.0, "designation": "RLX PAILLAGE 120/30", "kg": 1017.0}, {"date": "05/02/2025", "client": "AGRILITE", "qte": 30.0, "designation": "RLX PAILLAGE 280/100/140", "kg": 1200.6}, {"date": "05/02/2025", "client": "GDIRA BIOUGRA", "qte": 116.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "05/02/2025", "client": "GDIRA BIOUGRA", "qte": 659.0, "designation": "RLX PAILLAGE 1M/30", "kg": 0}, {"date": "05/02/2025", "client": "DOMAINE ATANANE LAARBI", "qte": 50.0, "designation": "COLIS FICELLE 1000 BLANCHE", "kg": 500.0}, {"date": "05/02/2025", "client": "DOMAINE ATANANE LAARBI", "qte": 300.0, "designation": "COLIS FICELLE 1000 NOIR", "kg": 3000.0}, {"date": "06/02/2025", "client": "BOUJEMAA LOUDAYA", "qte": 111.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 2015.0}, {"date": "10/02/2025", "client": "HOUDA AGRI", "qte": 103.0, "designation": "RLX PAILLAGE 1M/17", "kg": 0}, {"date": "10/02/2025", "client": "HOUDA AGRI", "qte": 55.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "10/02/2025", "client": "SIDID", "qte": 27.0, "designation": "RLX PAILLAGE 120/30", "kg": 1002.4}, {"date": "10/02/2025", "client": "GDIRA OULAD TAIMA", "qte": 132.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "10/02/2025", "client": "GDIRA OULAD TAIMA", "qte": 64.0, "designation": "RLX PAILLAGE 1M/30", "kg": 0}, {"date": "10/02/2025", "client": "PHYTO AL JANOUB", "qte": 53.0, "designation": "RLX PAILLAGE 120/30", "kg": 0}, {"date": "10/02/2025", "client": "PHYTO AL JANOUB", "qte": 33.0, "designation": "RLX PAILLAGE 1M/30", "kg": 1031.4}, {"date": "10/02/2025", "client": "AGIB", "qte": 27.0, "designation": "COLIS CORD N.4/4", "kg": 529.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 43.0, "designation": "COLIS CORD N.6", "kg": 1030.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 42.0, "designation": "COLIS CORD N.8", "kg": 1050.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 26.0, "designation": "COLIS BANDELETTE BLANCHE", "kg": 515.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 28.0, "designation": "COLIS BANDELETTE VERT", "kg": 530.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 186.0, "designation": "COLIS CORD N.10", "kg": 606.0}, {"date": "10/02/2025", "client": "AGIB", "qte": 84.0, "designation": "COLIS MON 1ER CHOIX N.14 200M", "kg": 0}, {"date": "10/02/2025", "client": "AGIB", "qte": 342.0, "designation": "COLIS FPP COULEUR", "kg": 1001.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 134.0, "designation": "COLIS CORD JAUNE N.6", "kg": 610.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 153.0, "designation": "COLIS CORD BLEU N.6", "kg": 802.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 173.0, "designation": "COLIS CORD VERT N.6", "kg": 800.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 96.0, "designation": "COLIS CORD ROUGE N.6", "kg": 431.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 98.0, "designation": "COLIS CORD VERT N.8", "kg": 600.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 98.0, "designation": "COLIS CORD BLEU", "kg": 601.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 150.0, "designation": "COLIS CORD BLEU N.10", "kg": 504.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 132.0, "designation": "COLIS CORD ROUGE N.10", "kg": 502.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 28.0, "designation": "COLIS CORD N.12", "kg": 412.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 30.0, "designation": "COLIS CORD N.4/4", "kg": 609.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 282.0, "designation": "COLIS FPP COULEUR", "kg": 807.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 269.0, "designation": "COLIS FPP BLANC", "kg": 754.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 111.0, "designation": "COLIS BANDELETTE", "kg": 2044.0}, {"date": "10/02/2025", "client": "TAHER", "qte": 16.0, "designation": "COLIS MON 1ER CHOIX N.14", "kg": 289.7}, {"date": "10/02/2025", "client": "TAHER", "qte": 5.0, "designation": "COLIS MON 1ER CHOIX N.14", "kg": 183.2}, {"date": "10/02/2025", "client": "TAHER", "qte": 5.0, "designation": "COLIS MON 1ER CHOIX N.16", "kg": 241.2}, {"date": "10/02/2025", "client": "TAHER", "qte": 5.0, "designation": "COLIS MON 1ER CHOIX N.18", "kg": 149.5}, {"date": "10/02/2025", "client": "TAHER", "qte": 5.0, "designation": "COLIS MON 1ER CHOIX N.20", "kg": 190.3}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 327.0, "designation": "COLIS CORD N.6", "kg": 1511.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 239.0, "designation": "COLIS CORD N.8", "kg": 1500.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 307.0, "designation": "COLIS CORD N.10", "kg": 1005.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 72.0, "designation": "COLIS CORD N.12", "kg": 1012.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 23.0, "designation": "COLIS CORD N.14", "kg": 427.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 10.0, "designation": "COLIS CORD N.16", "kg": 171.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 714.0, "designation": "COLIS FPP COULEUR", "kg": 2017.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 97.0, "designation": "COLIS FPP GF JAUNE", "kg": 500.0}, {"date": "11/02/2025", "client": "RAMOUCHE", "qte": 86.0, "designation": "COLIS FPP GF BLANC", "kg": 501.0}, {"date": "11/02/2025", "client": "GDIRA MARRAKECH", "qte": 200.0, "designation": "COLIS FICELLE 1000", "kg": 2000.0}, {"date": "12/02/2025", "client": "GDIRA MARRAKECH", "qte": 45.0, "designation": "RLX PAILLAGE 120/17", "kg": 1004.3}];
+const CLIENTS = [{"client": "Client", "ville": "Ville", "tel": "Num Tel", "mail": "Mail"}, {"client": "ABDA SELS", "ville": "SAFI", "tel": "05 24 46 46 46 / 05 24 62 98 50", "mail": "abdacereales@hotmail.com"}, {"client": "AGRI ASSISTANCE", "ville": "AIT MELLOUL", "tel": "05 28 24 05 00", "mail": "contact@agripages.ma / agri_assistance@menara.ma"}, {"client": "AGRICULTURA DEL SUR", "ville": "AIT MELLOUL", "tel": "", "mail": ""}, {"client": "AGRILIT", "ville": "OULED TEIMA", "tel": "05 28 52 19 22", "mail": "agrilit@hotmail.com"}, {"client": "ARWA MEDIC", "ville": "MARRAKECH", "tel": "05 24 49 60 68 / 05 24 49 60 68", "mail": "info@arwamedic.com"}, {"client": "ATANANE AGRI", "ville": "", "tel": "", "mail": ""}, {"client": "BAY BERRY FARMS", "ville": "KENITRA", "tel": "", "mail": ""}, {"client": "BRAHIM AIT AIZA", "ville": "", "tel": "", "mail": ""}, {"client": "CAPREL", "ville": "SAFI", "tel": "05 24 65 37 40", "mail": ""}, {"client": "CHTOUKA DES PRODUITS", "ville": "", "tel": "", "mail": ""}, {"client": "COOPERATIF TINMEL", "ville": "", "tel": "", "mail": ""}, {"client": "COPA CABAR", "ville": "", "tel": "", "mail": ""}, {"client": "COPA OULAD BRAHIM", "ville": "", "tel": "", "mail": ""}, {"client": "DEL SOL", "ville": "MARRAKECH", "tel": "", "mail": ""}, {"client": "DOMAINE AIT MILK", "ville": "", "tel": "", "mail": ""}, {"client": "DOMAINE ATANANE LAARBI", "ville": "", "tel": "", "mail": ""}, {"client": "DOMAINE OULED SAID", "ville": "Oulad Teima TAROUDANTE", "tel": "", "mail": ""}, {"client": "EL ADMI ABDELLATIF", "ville": "", "tel": "", "mail": ""}, {"client": "EL HILALI OMAR", "ville": "", "tel": "", "mail": ""}, {"client": "STE JAT AGRO", "ville": "", "tel": "", "mail": ""}, {"client": "FABER NEGOCE", "ville": "MARRAKECH", "tel": "", "mail": ""}, {"client": "FELLAH SIDID PRO", "ville": "TAROUDANT OULAD TEIMA", "tel": "", "mail": ""}, {"client": "FIRST AGRICOLE", "ville": "MARRAKECH", "tel": "05 24 39 51 76", "mail": ""}, {"client": "FIRTI PLAST", "ville": "", "tel": "", "mail": ""}, {"client": "GDIRA GRI", "ville": "BIOUGRA", "tel": "", "mail": ""}, {"client": "HOUDA AGRI", "ville": "", "tel": "", "mail": ""}, {"client": "INAGRIS", "ville": "AIT MELLOUL", "tel": "05 28 30 85 78 / 06 61 55 33 24", "mail": "contact@inagris.ma"}, {"client": "JANATI TISSA", "ville": "", "tel": "", "mail": ""}, {"client": "JONA PLAST", "ville": "Dar Bouazza", "tel": "212522292001 / 212 661-851299", "mail": "contact@jonaplast.com"}, {"client": "MARRAKECH FOURNITURE EQUIPEMENT", "ville": "MARRAKECH", "tel": "05 24 33 51 73", "mail": ""}, {"client": "MARWAGRI", "ville": "INZEGANE", "tel": "", "mail": ""}, {"client": "MIR AGRI", "ville": "Ait Melloul", "tel": "", "mail": ""}, {"client": "MR ZIQUEM EL HOUSSEINE", "ville": "", "tel": "", "mail": ""}, {"client": "NAKHLA PLASTIQUE", "ville": "MARRAKECH", "tel": "", "mail": ""}, {"client": "PHYTO AL JANOUB", "ville": "LAAYOUNE", "tel": "", "mail": ""}, {"client": "PHYTO LIFSAL", "ville": "INZEGANE", "tel": "", "mail": ""}, {"client": "PHYTO SH", "ville": "TAROUDANT OULAD TEIMA", "tel": "", "mail": ""}, {"client": "PHYTO SIDID", "ville": "AIT MELLOUL", "tel": "05 28 24 37 64", "mail": "contact@phytosidid.com"}, {"client": "S.I.A.T", "ville": "", "tel": "", "mail": ""}, {"client": "SETRAJI GLACONS", "ville": "MARRAKECH", "tel": "", "mail": ""}, {"client": "SOFA SOUSS", "ville": "AIT MELLOUL", "tel": "05 28 24 05 49", "mail": ""}, {"client": "STE ECATEM", "ville": "TEMARA", "tel": "", "mail": ""}, {"client": "SUN SEED", "ville": "TAROUDANT", "tel": "", "mail": ""}, {"client": "TAOURDA", "ville": "AGADIR", "tel": "", "mail": "taourda@menara.ma"}, {"client": "Client", "ville": "Ville", "tel": "Num Tel", "mail": ""}, {"client": "ABDESSAMAD", "ville": "", "tel": "", "mail": ""}, {"client": "AGADIR SEHRAOUI", "ville": "", "tel": "", "mail": ""}, {"client": "AGENCE IBRAHIMI", "ville": "CASA", "tel": "05 22 44 56 71", "mail": ""}, {"client": "AGROSAN", "ville": "", "tel": "", "mail": ""}, {"client": "AIT KESRI", "ville": "MARRAKECH", "tel": "06 66 88 93 32", "mail": ""}, {"client": "AIT MOUMAD FRERE", "ville": "", "tel": "", "mail": ""}, {"client": "AL WAHA EMBALLAGES", "ville": "", "tel": "", "mail": ""}, {"client": "AMMOUR ABDALLAH", "ville": "", "tel": "", "mail": ""}, {"client": "AZIZ", "ville": "SIDI BENNOUR", "tel": "06 66 93 23 93", "mail": ""}, {"client": "BAMHAOUD", "ville": "CASA", "tel": "05 22 30 91 29", "mail": ""}, {"client": "BATIOUI AZZEDINE", "ville": "", "tel": "", "mail": ""}, {"client": "BEN YAHYA AIT MELLOULE", "ville": "", "tel": "", "mail": ""}, {"client": "BENI MELLAL LHOUSSINE", "ville": "BENI MELLAL", "tel": "06 61 34 54 92", "mail": ""}, {"client": "BOUCHEAIBE CHARRADY", "ville": "CASA", "tel": "", "mail": ""}, {"client": "BOUJEMAA LOUDAYA", "ville": "MARRAKECH", "tel": "06 37 84 63 69", "mail": ""}, {"client": "CAGIS", "ville": "", "tel": "", "mail": ""}, {"client": "CK DOUAR AASKAR", "ville": "", "tel": "", "mail": ""}, {"client": "CK SIDI BIBI", "ville": "", "tel": "", "mail": ""}, {"client": "COOPERATIVE", "ville": "CASA", "tel": "06 66 21 04 73", "mail": ""}, {"client": "DOMAINE EL BREK", "ville": "", "tel": "", "mail": ""}, {"client": "ELHOUSSINE", "ville": "MARRAKECH", "tel": "06 73 07 87 63", "mail": ""}, {"client": "ELYAZID", "ville": "MARRAKECH", "tel": "06 61 98 32 20", "mail": ""}, {"client": "GROUND UP BTP", "ville": "", "tel": "", "mail": ""}, {"client": "HASSAN-BENIMELLAL", "ville": "", "tel": "", "mail": ""}, {"client": "JANATTI FES", "ville": "TISSA", "tel": "", "mail": ""}, {"client": "KHENIFRA", "ville": "", "tel": "", "mail": ""}, {"client": "MARWAGRI / DOMAINE AIT MILK", "ville": "", "tel": "", "mail": ""}, {"client": "MASMODI MED", "ville": "MARRAKECH", "tel": "06 61 37 09 84", "mail": ""}, {"client": "MILOUDE DUKALI", "ville": "SIDI BENNOUR", "tel": "06 79 27 79 84", "mail": ""}, {"client": "MUSTAPHA DUKALI", "ville": "", "tel": "", "mail": ""}, {"client": "NAJAH M HAMED", "ville": "", "tel": "", "mail": ""}, {"client": "RACHID-NEKHLA", "ville": "MARRAKECH", "tel": "", "mail": ""}, {"client": "RAMOUCHE", "ville": "SEBT GUEZZOULA", "tel": "06 62 35 41 94", "mail": ""}, {"client": "SAID", "ville": "SIDI BOUATMAN", "tel": "06 69 33 83 74", "mail": ""}, {"client": "STE EQUIPEMENT CAMPEMENT", "ville": "", "tel": "", "mail": ""}, {"client": "TAHER", "ville": "EL GHAREB", "tel": "06 77 78 80 70", "mail": ""}, {"client": "TAOURDA / FERTI PLAST", "ville": "", "tel": "", "mail": ""}, {"client": "TEMARA", "ville": "", "tel": "", "mail": ""}, {"client": "TOP SAVEURS", "ville": "", "tel": "", "mail": ""}];
+const FOURN_MP = [{"nom": "FOURNISSEUR", "produit": "Produit", "ville": "VILLE"}, {"nom": "Achemical", "produit": "PP", "ville": "CASABLANCA"}, {"nom": "Emeraude", "produit": "PE", "ville": "CASABLANCA"}, {"nom": "Menara Color", "produit": "Colorants / Charge / Anti UV", "ville": "CASABLANCA"}, {"nom": "Snetor Maroc", "produit": "PP Vierge /PEBD (ou LDPE) / PEHD ( ou ou HDPE)", "ville": "CASABLANCA"}, {"nom": "Synthechim", "produit": "PP/ PE", "ville": "CASABLANCA"}, {"nom": "Yoma color", "produit": "Colorants", "ville": "CASABLANCA"}, {"nom": "Yomar", "produit": "PE / EVA", "ville": "CASABLANCA"}];
+const FOURN_DIV = [{"nom": "FOURNISSEUR", "ville": "VILLE"}, {"nom": "A.G.L ( approvisionnement generel lahrioui )", "ville": "CASABLANCA"}, {"nom": "A.M.I ( atelier mecanique et industriel )", "ville": "MARRAKECH"}, {"nom": "ABOMA RESISTANCES", "ville": "CASABLANCA"}, {"nom": "", "ville": "CASABLANCA"}, {"nom": "AFRIQUIA SMDC", "ville": "CASABLANCA"}, {"nom": "AFROLAB", "ville": "AGADIR"}, {"nom": "AHMANE FRERES", "ville": "MARRAKECH"}, {"nom": "AL KARAM INOX", "ville": "MARRAKECH"}, {"nom": "AMELKIS", "ville": "MARRAKECH"}, {"nom": "AMR MECANIQUE", "ville": "CASABLANCA"}, {"nom": "AQUA P", "ville": "MARRAKECH"}, {"nom": "ARIHA FROID", "ville": "MARRAKECH"}, {"nom": "ASSAKADIS", "ville": "MARRAKECH"}, {"nom": "ATLAS INOX", "ville": "MARRAKECH"}, {"nom": "AUTO ENTREPRENEUR RACHID NEKHOUI", "ville": ""}, {"nom": "A&R BUSINESS", "ville": "CASABLANCA"}, {"nom": "BAKKER MAGNETICS", "ville": "IMPORTATION"}, {"nom": "BHF ATLAS", "ville": "CASABLANCA"}, {"nom": "BOREALIS", "ville": "CASABLANCA"}, {"nom": "BRICOMA", "ville": "MARRAKECH"}, {"nom": "C.E.D.P", "ville": "CASABLANCA"}, {"nom": "C.N.G ( caoutchouc nouvelle géneration)", "ville": "CASABLANCA"}, {"nom": "COGEMAT", "ville": "MARRAKECH"}, {"nom": "COMPTOIR ELECTRO FER", "ville": "MARRAKECH"}, {"nom": "CONOG", "ville": ""}, {"nom": "DOMAINE DU FER", "ville": "MARRAKECH"}, {"nom": "ECOWATT", "ville": "AIT MELLOUL"}, {"nom": "EL AYOUBI FLEX", "ville": "MARRAKECH"}, {"nom": "EMERAUDE", "ville": "CASABLANCA"}, {"nom": "ENERGIE SAHEL", "ville": "SOUALEM"}, {"nom": "ETS MOULIN", "ville": "CASABLANCA"}, {"nom": "EUROMOULE USINAGE", "ville": "CASABLANCA"}, {"nom": "F.O.G.I", "ville": "CASABLANCA"}, {"nom": "FASTMAN", "ville": "CASABLANCA"}, {"nom": "FATH MATERIEL", "ville": "MARRAKECH"}, {"nom": "FIRST AGRICOLE", "ville": "MARRAKECH"}, {"nom": "FMTM", "ville": "MOHAMEDIA"}, {"nom": "FUSION ACCESSOIRES ET PIECES AUTO", "ville": "MARRAKECH"}, {"nom": "G.I.E.M", "ville": "MOHAMEDIA"}, {"nom": "GROMAGIN", "ville": "MARRAKECH"}, {"nom": "HA INDUSTRIE", "ville": "CASABLANCA"}, {"nom": "HANA LUBRIFIANTS", "ville": "MARRAKECH"}, {"nom": "IMANE FER", "ville": "MARRAKECH"}, {"nom": "IMPRIMERIE PAPETERIE AL WATANYA", "ville": "MARRAKECH"}, {"nom": "INDUSELEC", "ville": "CASABLANCA"}, {"nom": "INDUSTRO AZIZ", "ville": ""}, {"nom": "ITAL TOURS", "ville": "MARRAKECH"}, {"nom": "LE MAITRE DES COULEURS", "ville": "MARRAKECH"}, {"nom": "MARCHAL NEGOCE", "ville": "CASABLANCA"}, {"nom": "MENARA COLOR", "ville": "CASABLANCA"}, {"nom": "MICROSPEC", "ville": "MARRAKECH"}, {"nom": "MULITEQ", "ville": "CASABLANCA"}, {"nom": "LIBRAIRIE PAPETERIE CHATR", "ville": "MARRAKECH"}, {"nom": "PIECE AUTO DU SOUSS", "ville": "MARRAKECH"}, {"nom": "PREFA INOX", "ville": "MARRAKECH"}, {"nom": "PREMIUM KL", "ville": ""}, {"nom": "RADIO ASWAT", "ville": "CASABLANCA"}, {"nom": "RAHAF EMBALLAGE", "ville": "CASABLANCA"}, {"nom": "RAZILAB", "ville": "AGADIR"}, {"nom": "REKAVE NEGOCE", "ville": "MARRAKECH"}, {"nom": "ROUSSEAU DISTRIBUTION", "ville": "CASABLANCA"}, {"nom": "SAHARA TRANSMISSION", "ville": "MARRAKECH"}, {"nom": "SEBBAR MATERIAUX", "ville": "CASABLANCA"}, {"nom": "SELECTRA", "ville": "CASABLANCA"}, {"nom": "SERIMA", "ville": "CASABLANCA"}, {"nom": "SGUIFER", "ville": "MARRAKECH"}, {"nom": "SNETOR MAROC", "ville": "CASABLANCA"}, {"nom": "SUD TRANSMISSION", "ville": "MARRAKECH"}, {"nom": "SYNTHECHIM", "ville": "CASABLANCA"}, {"nom": "TECHNIQUE ACIERS", "ville": "CASABLANCA"}, {"nom": "TREFIMED", "ville": "IMPORTATION"}, {"nom": "VEPEC", "ville": "CASABLANCA"}, {"nom": "WALIFER", "ville": "MARRAKECH"}, {"nom": "WAYLOG", "ville": "CASABLANCA"}, {"nom": "WINOJET", "ville": "CASABLANCA"}, {"nom": "YAN TOTAL SERVICE", "ville": "MARRAKECH"}, {"nom": "YOMACOLOR", "ville": "CASABLANCA"}, {"nom": "YOMAR", "ville": "CASABLANCA"}, {"nom": "YOUSSEF IMPRESSIONS", "ville": "MARRAKECH"}, {"nom": "ZANZARI FOUNDERS", "ville": "MARRAKECH"}, {"nom": "ZENJALI MOHAMED FOUAD", "ville": "MARRAKECH"}];
+const PRODUITS = [{"nom": "Produit", "dim": "Dimension", "poids": "Poids"}, {"nom": "Fil Polypropylène – Petit Format", "dim": "Bobine", "poids": "2,5 kg-3kg"}, {"nom": "Fil Polypropylène – Grand Format", "dim": "Bobine", "poids": "6 Kg"}, {"nom": "Ficelle Agricole", "dim": "500 m", "poids": "10 kg/ 2 bobine"}, {"nom": "Ficelle Horticole Noir", "dim": "1000 m", "poids": "10 kg/ 2 bobine"}, {"nom": "Ficelle Horticole Blanche", "dim": "1000 m", "poids": "10 kg/ 2 bobine"}, {"nom": "Ficelle Lingerie", "dim": "3,0 mm", "poids": "6 kg-7 kg"}, {"nom": "Corde Polypropylène", "dim": "4 mm", "poids": "18 Kg"}, {"nom": "Bandelette Polypropylène", "dim": "Colis de 4 Bobines", "poids": "18–20 kg"}, {"nom": "Monofilament Premier Choix", "dim": "4 mm", "poids": "18 Kg"}, {"nom": "Monofilament Deuxième choix", "dim": "4 mm", "poids": "18 Kg"}, {"nom": "Bidon 5 Litres", "dim": "-", "poids": "-"}, {"nom": "Bidon 10 Litres", "dim": "-", "poids": "-"}, {"nom": "Rouleaux Paillage 0,80/1000/17", "dim": "-", "poids": 13.6}, {"nom": "Rouleaux Paillage 1,00/1000/17", "dim": "-", "poids": 17}, {"nom": "Rouleaux Paillage 1,20/1000/17", "dim": "-", "poids": 20.4}, {"nom": "Rouleaux Paillage 0,80/1000/30", "dim": "-", "poids": 24}, {"nom": "Rouleaux Paillage 1,00/1000/30", "dim": "-", "poids": 30}, {"nom": "Rouleaux Paillage 1,20/1000/30", "dim": "-", "poids": 36}, {"nom": "Rouleaux Paillage 1,40/1000/30", "dim": "-", "poids": 42}, {"nom": "Rouleaux Paillage 1,60/1000/30", "dim": "-", "poids": 48}, {"nom": "Rouleaux Paillage 0,80/1000/40", "dim": "-", "poids": 32}, {"nom": "Rouleaux Paillage 1,00/1000/40", "dim": "-", "poids": 40}, {"nom": "Rouleaux Paillage 1,20/1000/40", "dim": "-", "poids": 48}, {"nom": "Rouleaux Paillage 1,40/1000/40", "dim": "-", "poids": 56}, {"nom": "Rouleaux Paillage 1,60/1000/40", "dim": "-", "poids": 64}, {"nom": "Rouleaux Paillage Transparant 1,60/500/90", "dim": "-", "poids": 72}, {"nom": "Sac D'Emballage Industriel", "dim": "-", "poids": "—"}];
+
+const MOIS_ORDER = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const COLORS=['#e3b341','#3fb950','#58a6ff','#f85149','#bc8cff','#ff7b72','#ffa657','#79c0ff','#a5d6ff','#d2a8ff','#ffa198','#ffb77c'];
+const AC={};
+
+function chart(id,type,labels,datasets,opts={}){
+  const ctx=document.getElementById(id);if(!ctx)return;
+  if(AC[id])AC[id].destroy();
+  AC[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}},position:['pie','doughnut','bar'].includes(type)&&opts.indexAxis?'top':['pie','doughnut'].includes(type)?'right':'top'}},scales:type==='bar'||type==='line'?{x:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}}}:{},...opts}});
+}
+
+let YR_DIST=2025;
+
+function renderDist(yr){
+  const prefix=yr+'/';
+  const moisKeys=MOIS_ORDER.map(m=>m+'/'+yr);
+  const labels=MOIS_ORDER.filter(m=>DIST_MOIS[m+'/'+yr]!==undefined);
+  const data=labels.map(m=>DIST_MOIS[m+'/'+yr]||0);
+  chart('chart-dist-bar','bar',labels,[{label:'Distribution (kg)',data,backgroundColor:'rgba(227,179,65,.7)',borderColor:'#e3b341',borderRadius:4}]);
+  const tc=Object.entries(TOP_CLIENTS).slice(0,8);
+  chart('chart-dist-clients','bar',tc.map(([k])=>k),[{label:'kg',data:tc.map(([,v])=>v),backgroundColor:'rgba(88,166,255,.7)',borderColor:'#58a6ff',borderRadius:4}],{indexAxis:'y'});
+  const tp=Object.entries(TOP_PRODUITS).slice(0,8);
+  chart('chart-dist-prods','doughnut',tp.map(([k])=>k.substring(0,20)),[{data:tp.map(([,v])=>v),backgroundColor:COLORS}]);
+  const total=data.reduce((a,v)=>a+v,0);
+  const mois=data.length||1;
+  document.getElementById('dist-total').textContent=(total/1000).toFixed(0)+' t';
+  document.getElementById('dist-clients').textContent=Object.keys(TOP_CLIENTS).length;
+  document.getElementById('dist-best').textContent=Object.keys(TOP_CLIENTS)[0]||'—';
+  document.getElementById('dist-moy').textContent=(total/mois/1000).toFixed(0)+' t';
+  renderDistHist();
+}
+
+function renderDistHist(){
+  const el=document.getElementById('dist-hist');
+  const q=document.getElementById('dist-search').value.toLowerCase();
+  const filtered=DISTRIBUTION.filter(r=>{
+    if(!r.date) return false;
+    if(q&&!r.client.toLowerCase().includes(q)&&!r.designation.toLowerCase().includes(q)) return false;
+    return true;
+  }).slice(0,50);
+  el.innerHTML=`<table class="htable"><thead><tr><th>Date</th><th>Client</th><th>Désignation</th><th>Qté</th><th>Total kg</th></tr></thead><tbody>`+
+    filtered.map(r=>`<tr><td>${r.date}</td><td style="font-weight:600">${r.client}</td><td style="color:var(--muted)">${r.designation}</td><td>${r.qte||'—'}</td><td style="color:var(--accent);font-weight:600">${(r.kg||0).toLocaleString('fr-FR')}</td></tr>`).join('')+
+    `</tbody></table>`;
+}
+window.filterDist=renderDistHist;
+
+function renderClients(){
+  const el=document.getElementById('cli-table');
+  const q=document.getElementById('cli-search')?.value.toLowerCase()||'';
+  const filtered=CLIENTS.filter(c=>!q||c.client.toLowerCase().includes(q)||c.ville.toLowerCase().includes(q)).slice(0,60);
+  const villes=new Set(CLIENTS.map(c=>c.ville).filter(v=>v));
+  document.getElementById('cli-actifs').textContent=Object.keys(TOP_CLIENTS).length;
+  document.getElementById('cli-villes').textContent=villes.size;
+  el.innerHTML=`<table class="htable"><thead><tr><th>Client</th><th>Ville</th><th>Téléphone</th><th>Email</th></tr></thead><tbody>`+
+    filtered.map(c=>`<tr><td style="font-weight:600">${c.client}</td><td style="color:var(--muted)">${c.ville||'—'}</td><td>${c.tel||'—'}</td><td style="color:var(--muted)">${c.mail||'—'}</td></tr>`).join('')+
+    `</tbody></table>`;
+  // Datalist
+  ['clients-list','clients-list2'].forEach(id=>{
+    const dl=document.getElementById(id);
+    if(dl) dl.innerHTML=CLIENTS.map(c=>`<option value="${c.client}">`).join('');
+  });
+}
+window.filterClients=renderClients;
+
+function renderFournMP(){
+  const el=document.getElementById('fourmp-table');
+  const q=document.getElementById('fourmp-search')?.value.toLowerCase()||'';
+  const filtered=FOURN_MP.filter(f=>!q||f.nom.toLowerCase().includes(q));
+  el.innerHTML=`<table class="htable"><thead><tr><th>Fournisseur</th><th>Produit</th><th>Ville</th></tr></thead><tbody>`+
+    filtered.map(f=>`<tr><td style="font-weight:600">${f.nom}</td><td style="color:var(--accent)">${f.produit||'—'}</td><td style="color:var(--muted)">${f.ville||'—'}</td></tr>`).join('')+
+    `</tbody></table>`;
+}
+window.filterFournMP=renderFournMP;
+
+function renderProduits(){
+  const el=document.getElementById('prod-table');
+  const q=document.getElementById('prod-search')?.value.toLowerCase()||'';
+  const filtered=PRODUITS.filter(p=>!q||p.nom.toLowerCase().includes(q));
+  const pp=PRODUITS.filter(p=>p.nom.toLowerCase().includes('pp')||p.nom.toLowerCase().includes('corde')||p.nom.toLowerCase().includes('ficelle')||p.nom.toLowerCase().includes('fil'));
+  const pe=PRODUITS.filter(p=>p.nom.toLowerCase().includes('pe')||p.nom.toLowerCase().includes('paillage')||p.nom.toLowerCase().includes('emballage'));
+  document.getElementById('prod-pp').textContent=pp.length;
+  document.getElementById('prod-pe').textContent=pe.length;
+  document.getElementById('prod-actifs').textContent=Object.keys(TOP_PRODUITS).length;
+  el.innerHTML=`<table class="htable"><thead><tr><th>Produit</th><th>Dimension</th><th>Poids</th></tr></thead><tbody>`+
+    filtered.map(p=>`<tr><td style="font-weight:600">${p.nom}</td><td style="color:var(--muted)">${p.dim||'—'}</td><td style="color:var(--accent)">${p.poids||'—'}</td></tr>`).join('')+
+    `</tbody></table>`;
+}
+window.filterProduits=renderProduits;
+
+window.showTab=function(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  event.target.classList.add('active');
+  if(tab==='distribution')renderDist(YR_DIST);
+  else if(tab==='clients')renderClients();
+  else if(tab==='fournisseurs')renderFournMP();
+  else if(tab==='produits')renderProduits();
+  else if(tab==='commandes')loadCommandes();
+};
+
+window.setYr=function(tab,yr,btn){
+  YR_DIST=yr;
+  btn.closest('.yr-btns').querySelectorAll('.yr-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDist(yr);
+};
+
+async function loadCommandes(){
+  const el=document.getElementById('cmd-hist');
+  try{
+    const q=query(collection(db,'commandes'),orderBy('createdAt','desc'),limit(20));
+    const snap=await getDocs(q);
+    if(snap.empty){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Aucune commande enregistrée</div>';return;}
+    document.getElementById('cmd-total').textContent=snap.size;
+    el.innerHTML=`<table class="htable"><thead><tr><th>Date</th><th>Client</th><th>Produit</th><th>Qté</th><th>Livraison</th><th>Priorité</th></tr></thead><tbody>`+
+      snap.docs.map(d=>{const r=d.data();return`<tr><td>${r.date||'—'}</td><td style="font-weight:600">${r.client||'—'}</td><td>${r.designation||'—'}</td><td>${r.qte||'—'}</td><td>${r.livraison||'—'}</td><td style="color:${r.priorite==='Urgent'?'#f85149':r.priorite==='Très urgent'?'#bc8cff':'var(--muted)'}">${r.priorite||'Normal'}</td></tr>`;}).join('')+
+      `</tbody></table>`;
+  }catch(e){el.innerHTML=`<div style="color:var(--danger)">Erreur: ${e.message}</div>`;}
+}
+
+async function save(col,data,btnId){
+  const btn=document.getElementById(btnId);btn.disabled=true;btn.textContent='⏳...';
+  try{await addDoc(collection(db,col),{...data,createdAt:serverTimestamp()});toast('✅ Enregistré !');}
+  catch(e){toast('Erreur: '+e.message,true);}
+  btn.disabled=false;btn.textContent=btn.dataset.label||'✓ Enregistrer';
+}
+
+window.saveDist=()=>save('distribution',{date:document.getElementById('dist-date').value,client:document.getElementById('dist-client').value,designation:document.getElementById('dist-desig').value,qte:parseFloat(document.getElementById('dist-qte').value||0),kg:parseFloat(document.getElementById('dist-kg').value||0),bl:document.getElementById('dist-bl').value},'dist-btn');
+window.saveCmd=()=>save('commandes',{date:document.getElementById('cmd-date').value,client:document.getElementById('cmd-client').value,designation:document.getElementById('cmd-desig').value,qte:parseFloat(document.getElementById('cmd-qte').value||0),livraison:document.getElementById('cmd-livraison').value,priorite:document.getElementById('cmd-priorite').value,observations:document.getElementById('cmd-obs').value},'cmd-btn');
+window.saveClient=()=>save('clients',{nom:document.getElementById('cli-nom').value,ville:document.getElementById('cli-ville').value,tel:document.getElementById('cli-tel').value,mail:document.getElementById('cli-mail').value},'cli-btn');
+window.saveFourn=()=>save('fournisseurs',{nom:document.getElementById('four-nom').value,type:document.getElementById('four-type').value,produit:document.getElementById('four-prod').value,ville:document.getElementById('four-ville').value,tel:document.getElementById('four-tel').value,mail:document.getElementById('four-mail').value},'four-btn');
+
+function toast(msg,isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+renderDist(2025);
+</script>
+</body>
+</html>

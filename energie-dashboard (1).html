@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Énergie — Corderies de la Koutoubia</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--s2:#1c2128;--border:#30363d;--accent:#3fb950;--blue:#58a6ff;--orange:#e3b341;--danger:#f85149;--purple:#bc8cff;--text:#e6edf3;--muted:#8b949e;--r:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.logo{font-size:16px;font-weight:700;color:var(--accent);}.logo span{color:var(--muted);font-size:12px;font-weight:400;margin-left:6px;}
+.badge{margin-left:auto;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);color:var(--accent);padding:4px 12px;border-radius:14px;font-size:11px;font-weight:600;}
+.tabs{display:flex;gap:2px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:7px 16px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.tab.active{background:var(--accent);color:#000;font-weight:600;}
+.tab:hover:not(.active){background:rgba(255,255,255,.06);color:var(--text);}
+.container{max-width:1200px;margin:0 auto;padding:24px 20px 80px;}
+.page{display:none;}.page.active{display:block;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;}
+.metric-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.metric-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px;}
+.metric-sub{font-size:11px;color:var(--muted);}
+.green{color:var(--accent);}.blue{color:var(--blue);}.orange{color:var(--orange);}.purple{color:var(--purple);}.red{color:var(--danger);}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
+.chart-card.full{grid-column:1/-1;}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;}
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;}
+.form-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.top-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:var(--r);font-size:14px;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.btn{padding:12px 24px;border-radius:var(--r);border:none;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:12px;}
+.btn-green{background:var(--accent);color:#000;}.btn-green:hover{opacity:.88;}.btn-green:disabled{opacity:.4;}
+.htable-wrap{overflow-x:auto;margin-top:8px;}
+.htable{width:100%;border-collapse:collapse;font-size:12px;}
+.htable th{color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.htable td{padding:7px 10px;border-bottom:1px solid rgba(48,54,61,.4);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent);color:#000;padding:11px 22px;border-radius:22px;font-weight:600;font-size:13px;transition:transform .3s;z-index:999;}
+.toast.show{transform:translateX(-50%) translateY(0);}.toast.err{background:var(--danger);color:#fff;}
+@media(max-width:768px){.metrics{grid-template-columns:1fr 1fr;}.charts-grid{grid-template-columns:1fr;}.top-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">⚡ Gestion Énergétique <span>— Corderies de la Koutoubia</span></div></div>
+  <div class="badge" id="today-badge"></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('environnement')">🌿 Environnement</button>
+  <button class="tab" onclick="showTab('factures')">💡 Factures</button>
+  <button class="tab" onclick="showTab('solaire')">☀️ Solaire</button>
+  <button class="tab" onclick="showTab('machines')">⚙️ Parc Machines</button>
+</div>
+<div class="container">
+
+<!-- ENVIRONNEMENT -->
+<div class="page active" id="page-environnement">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Conso Transfo 2025</div><div class="metric-val blue" id="env-t">5.60 GWh</div><div class="metric-sub">kWh transformateurs</div></div>
+    <div class="metric"><div class="metric-label">Production Solaire</div><div class="metric-val green" id="env-pv">1633 MWh</div><div class="metric-sub">kWh panneaux PV</div></div>
+    <div class="metric"><div class="metric-label">Contribution PV moy.</div><div class="metric-val orange" id="env-c">23.3%</div><div class="metric-sub">part énergie verte</div></div>
+    <div class="metric"><div class="metric-label">CO2 Évité</div><div class="metric-val purple" id="env-co2">1,192 t</div><div class="metric-sub">kg CO2 non émis</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card full"><div class="chart-title">Consommation mensuelle — Transformateurs vs Énergie Solaire (kWh)</div><canvas id="chart-env-bar" height="80"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Contribution énergie solaire PV (%)</div><canvas id="chart-env-contrib" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Consommation eau (m³/mois)</div><canvas id="chart-env-eau" height="200"></canvas></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Saisie mensuelle environnement</div>
+    <div class="top-row">
+      <div class="field"><label>Mois</label>
+        <select id="env-mois">
+          <option>Janvier</option><option>Février</option><option>Mars</option><option>Avril</option>
+          <option>Mai</option><option>Juin</option><option>Juillet</option><option>Août</option>
+          <option>Septembre</option><option>Octobre</option><option>Novembre</option><option>Décembre</option>
+        </select>
+      </div>
+      <div class="field"><label>Année</label><select id="env-annee"><option>2025</option><option>2026</option></select></div>
+      <div class="field"><label>Conso Transfo (kWh)</label><input type="number" id="env-conso-t" min="0" placeholder="0"></div>
+    </div>
+    <div class="top-row" style="margin-top:10px;">
+      <div class="field"><label>Production PV (kWh)</label><input type="number" id="env-conso-pv" min="0" placeholder="0"></div>
+      <div class="field"><label>Conso Eau (m³)</label><input type="number" id="env-eau" min="0" step="0.01" placeholder="0"></div>
+      <div class="field"><label>Facteur CO2 (kg/kWh)</label><input type="number" id="env-facteur" value="0.73" step="0.01"></div>
+    </div>
+    <button class="btn btn-green" id="env-btn" onclick="saveEnv()">✓ Enregistrer données environnement</button>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Données 2025 — Tableau récapitulatif</div>
+    <div class="htable-wrap" id="env-table"></div>
+  </div>
+</div>
+
+<!-- FACTURES -->
+<div class="page" id="page-factures">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Factures 2025</div><div class="metric-val blue" id="fact-total">—</div><div class="metric-sub">montant total</div></div>
+    <div class="metric"><div class="metric-label">Électricité</div><div class="metric-val green" id="fact-elec">—</div><div class="metric-sub">Corderies Herbil</div></div>
+    <div class="metric"><div class="metric-label">Eau</div><div class="metric-val orange" id="fact-eau">—</div><div class="metric-sub">consommation eau</div></div>
+    <div class="metric"><div class="metric-label">Moy. mensuelle</div><div class="metric-val purple" id="fact-moy">—</div><div class="metric-sub">MAD / mois</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Saisie facture</div>
+    <div class="top-row">
+      <div class="field"><label>Date facture</label><input type="date" id="fact-date"></div>
+      <div class="field"><label>Type</label><select id="fact-type"><option>Électricité</option><option>Eau</option><option>Électricité + Eau</option></select></div>
+      <div class="field"><label>Montant (MAD)</label><input type="number" id="fact-montant" min="0" step="0.01" placeholder="0"></div>
+    </div>
+    <div class="top-row" style="margin-top:10px;">
+      <div class="field"><label>Consommation kWh</label><input type="number" id="fact-kwh" min="0" placeholder="0"></div>
+      <div class="field"><label>Production PV kWh</label><input type="number" id="fact-pv" min="0" placeholder="0"></div>
+      <div class="field"><label>Consommation Eau m³</label><input type="number" id="fact-m3" min="0" step="0.01" placeholder="0"></div>
+    </div>
+    <button class="btn btn-green" id="fact-btn" onclick="saveFacture()">✓ Enregistrer facture</button>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Historique factures</div>
+    <div class="htable-wrap" id="fact-hist"><div style="text-align:center;color:var(--muted);padding:20px">Chargement depuis Firebase...</div></div>
+  </div>
+</div>
+
+<!-- SOLAIRE -->
+<div class="page" id="page-solaire">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Production 2025</div><div class="metric-val green" id="sol-total">1633 MWh</div><div class="metric-sub">énergie solaire</div></div>
+    <div class="metric"><div class="metric-label">Meilleur mois</div><div class="metric-val blue" id="sol-best">Juillet</div><div class="metric-sub">210 676 kWh</div></div>
+    <div class="metric"><div class="metric-label">Moy. mensuelle</div><div class="metric-val orange" id="sol-moy">136 MWh</div><div class="metric-sub">kWh / mois</div></div>
+    <div class="metric"><div class="metric-label">CO2 Évité</div><div class="metric-val purple" id="sol-co2">1,192 t</div><div class="metric-sub">en 2025</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card full"><div class="chart-title">Production solaire mensuelle 2025 (kWh)</div><canvas id="chart-sol-bar" height="80"></canvas></div>
+    <div class="chart-card full"><div class="chart-title">Contribution PV vs Transfo</div><canvas id="chart-sol-stacked" height="100"></canvas></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">+ Relevé solaire</div>
+    <div class="top-row">
+      <div class="field"><label>Date</label><input type="date" id="sol-date"></div>
+      <div class="field"><label>Production journalière (kWh)</label><input type="number" id="sol-prod" min="0" step="0.1" placeholder="0"></div>
+      <div class="field"><label>Irradiance (kWh/m²)</label><input type="number" id="sol-irrad" min="0" step="0.01" placeholder="0"></div>
+    </div>
+    <button class="btn btn-green" id="sol-btn" onclick="saveSolaire()">✓ Enregistrer relevé solaire</button>
+  </div>
+</div>
+
+<!-- PARC MACHINES -->
+<div class="page" id="page-machines">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Extrudeuses PP</div><div class="metric-val blue" id="mach-pp">6</div><div class="metric-sub">lignes d'extrusion</div></div>
+    <div class="metric"><div class="metric-label">Extrudeuses PE</div><div class="metric-val green" id="mach-pe">4</div><div class="metric-sub">machines PE</div></div>
+    <div class="metric"><div class="metric-label">Puissance totale</div><div class="metric-val orange" id="mach-puiss">—</div><div class="metric-sub">kW installés</div></div>
+    <div class="metric"><div class="metric-label">Âge moyen</div><div class="metric-val purple" id="mach-age">—</div><div class="metric-sub">ans</div></div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Parc machines — Extrudeuses PP</div>
+    <div class="htable-wrap">
+      <table class="htable">
+        <thead><tr><th>Machine</th><th>Type</th><th>Lignes</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Extrudeuse PP 1</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">Extrudeuse PP 2</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">Extrudeuse PP 3</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">Extrudeuse PP 4</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">Extrudeuse PP 5</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">Extrudeuse PP 6</td><td style="color:var(--muted)">Ligne d'extrusion PP</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-title">Parc machines — Extrudeuses PE</div>
+    <div class="htable-wrap">
+      <table class="htable">
+        <thead><tr><th>Machine</th><th>Type</th><th>Lignes</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">M1-PE</td><td style="color:var(--muted)">Extrudeuse PE</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">M2</td><td style="color:var(--muted)">Extrudeuse PE</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+          <tr><td style="font-weight:600">M3</td><td style="color:var(--muted)">Extrudeuse PE</td><td>A, B, C</td><td style="color:var(--accent)">✓ Active</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const app = initializeApp({apiKey:"AIzaSyCorderies_REPLACE_ME",authDomain:"unisys-koutoubia.firebaseapp.com",projectId:"unisys-koutoubia"});
+const db = getFirestore(app);
+
+const today = new Date().toISOString().split('T')[0];
+['fact','sol'].forEach(p=>{const el=document.getElementById(p+'-date');if(el)el.value=today;});
+document.getElementById('today-badge').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+const ENV_DATA = [{"mois": "Janvier", "transfo": 452760, "pv": 88140.55, "contrib": 16.3, "eau": 2.08}, {"mois": "Février", "transfo": 406937, "pv": 111931.4, "contrib": 21.57, "eau": 2.08}, {"mois": "Mars", "transfo": 434863, "pv": 142775.59, "contrib": 24.72, "eau": 2.0}, {"mois": "Avril", "transfo": 493128, "pv": 154587.33, "contrib": 23.87, "eau": 1.85}, {"mois": "Mai", "transfo": 553095, "pv": 198514.01, "contrib": 26.41, "eau": 1.85}, {"mois": "Juin", "transfo": 368393, "pv": 144777.95, "contrib": 28.21, "eau": 1.85}, {"mois": "Juillet", "transfo": 522688, "pv": 210676.73, "contrib": 28.73, "eau": 1.77}, {"mois": "Août", "transfo": 496688, "pv": 171533.28, "contrib": 25.67, "eau": 1.62}, {"mois": "Septembre", "transfo": 497754, "pv": 144378.78, "contrib": 22.48, "eau": 1.46}, {"mois": "Octobre", "transfo": 507448, "pv": 133231.62, "contrib": 20.8, "eau": 1.46}, {"mois": "Novembre", "transfo": 443966, "pv": 91912.16, "contrib": 17.15, "eau": 0}, {"mois": "Décembre", "transfo": 423233, "pv": 41027.23, "contrib": 100, "eau": 0}];
+const MOIS_LABELS = ENV_DATA.map(r=>r.mois);
+const COLORS=['#3fb950','#58a6ff','#e3b341','#f85149','#bc8cff','#ff7b72','#ffa657','#79c0ff'];
+const AC={};
+
+function chart(id,type,labels,datasets,opts={}){
+  const ctx=document.getElementById(id);if(!ctx)return;
+  if(AC[id])AC[id].destroy();
+  AC[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}},position:['pie','doughnut'].includes(type)?'right':'top'}},scales:type==='bar'||type==='line'?{x:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}}}: {},...opts}});
+}
+
+function renderEnv(){
+  chart('chart-env-bar','bar',MOIS_LABELS,[
+    {label:'Transformateurs (kWh)',data:ENV_DATA.map(r=>r.transfo),backgroundColor:'rgba(248,81,73,.6)',borderColor:'#f85149',borderRadius:3},
+    {label:'Solaire PV (kWh)',data:ENV_DATA.map(r=>r.pv),backgroundColor:'rgba(63,185,80,.7)',borderColor:'#3fb950',borderRadius:3}
+  ]);
+  chart('chart-env-contrib','line',MOIS_LABELS,[{label:'Contribution PV (%)',data:ENV_DATA.map(r=>r.contrib<100?r.contrib:null),borderColor:'#3fb950',backgroundColor:'rgba(63,185,80,.1)',fill:true,tension:.4,spanGaps:true}]);
+  chart('chart-env-eau','bar',MOIS_LABELS,[{label:'Eau (m³)',data:ENV_DATA.map(r=>r.eau),backgroundColor:'rgba(88,166,255,.7)',borderColor:'#58a6ff',borderRadius:3}]);
+  const el=document.getElementById('env-table');
+  el.innerHTML=`<table class="htable"><thead><tr><th>Mois</th><th>Transfo (kWh)</th><th>PV (kWh)</th><th>Contribution %</th><th>Eau m³</th></tr></thead><tbody>`+
+    ENV_DATA.map(r=>`<tr><td style="font-weight:600">${r.mois}</td><td style="color:var(--blue)">${r.transfo.toLocaleString('fr-FR')}</td><td style="color:var(--accent)">${r.pv.toLocaleString('fr-FR',{maximumFractionDigits:0})}</td><td style="color:var(--orange)">${r.contrib.toFixed(1)}%</td><td>${r.eau||'—'}</td></tr>`).join('')+
+    `</tbody></table>`;
+}
+
+function renderSolaire(){
+  chart('chart-sol-bar','bar',MOIS_LABELS,[{label:'Production PV (kWh)',data:ENV_DATA.map(r=>r.pv),backgroundColor:'rgba(63,185,80,.7)',borderColor:'#3fb950',borderRadius:4}]);
+  chart('chart-sol-stacked','bar',MOIS_LABELS,[
+    {label:'Transfo (kWh)',data:ENV_DATA.map(r=>r.transfo),backgroundColor:'rgba(248,81,73,.5)',borderColor:'#f85149',borderRadius:3},
+    {label:'PV (kWh)',data:ENV_DATA.map(r=>r.pv),backgroundColor:'rgba(63,185,80,.7)',borderColor:'#3fb950',borderRadius:3}
+  ],{scales:{x:{stacked:false,ticks:{color:'#8b949e'},grid:{color:'#21262d'}},y:{stacked:false,ticks:{color:'#8b949e'},grid:{color:'#21262d'}}}});
+}
+
+window.showTab=function(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  event.target.classList.add('active');
+  if(tab==='environnement')renderEnv();
+  else if(tab==='solaire')renderSolaire();
+  else if(tab==='factures')loadFactures();
+};
+
+async function loadFactures(){
+  const el=document.getElementById('fact-hist');
+  try{
+    const q=query(collection(db,'factures'),orderBy('createdAt','desc'),limit(20));
+    const snap=await getDocs(q);
+    if(snap.empty){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Aucune facture — ajoutez-en via le formulaire ci-dessus</div>';return;}
+    el.innerHTML=`<table class="htable"><thead><tr><th>Date</th><th>Type</th><th>Montant (MAD)</th><th>kWh</th><th>PV kWh</th><th>Eau m³</th></tr></thead><tbody>`+
+      snap.docs.map(d=>{const r=d.data();return`<tr><td>${r.date||'—'}</td><td>${r.type||'—'}</td><td style="color:var(--accent);font-weight:600">${(r.montant||0).toLocaleString('fr-FR')}</td><td>${(r.kwh||0).toLocaleString('fr-FR')}</td><td style="color:var(--accent)">${(r.pv||0).toLocaleString('fr-FR')}</td><td>${r.m3||'—'}</td></tr>`;})).join('')+
+      `</tbody></table>`;
+    document.getElementById('fact-total').textContent=snap.size+' factures';
+  }catch(e){el.innerHTML=`<div style="color:var(--danger)">Erreur: ${e.message}</div>`;}
+}
+
+async function save(col,data,btnId){
+  const btn=document.getElementById(btnId);btn.disabled=true;btn.textContent='⏳...';
+  try{await addDoc(collection(db,col),{...data,createdAt:serverTimestamp()});toast('✅ Enregistré !')}
+  catch(e){toast('Erreur: '+e.message,true)}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+window.saveEnv=()=>save('environnement',{mois:document.getElementById('env-mois').value,annee:document.getElementById('env-annee').value,conso_transfo:parseFloat(document.getElementById('env-conso-t').value||0),conso_pv:parseFloat(document.getElementById('env-conso-pv').value||0),conso_eau:parseFloat(document.getElementById('env-eau').value||0),facteur_co2:parseFloat(document.getElementById('env-facteur').value||0.73)},'env-btn');
+window.saveFacture=()=>save('factures',{date:document.getElementById('fact-date').value,type:document.getElementById('fact-type').value,montant:parseFloat(document.getElementById('fact-montant').value||0),kwh:parseFloat(document.getElementById('fact-kwh').value||0),pv:parseFloat(document.getElementById('fact-pv').value||0),m3:parseFloat(document.getElementById('fact-m3').value||0)},'fact-btn');
+window.saveSolaire=()=>save('solaire',{date:document.getElementById('sol-date').value,production:parseFloat(document.getElementById('sol-prod').value||0),irradiance:parseFloat(document.getElementById('sol-irrad').value||0)},'sol-btn');
+
+function toast(msg,isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+renderEnv();
+</script>
+</body>
+</html>
