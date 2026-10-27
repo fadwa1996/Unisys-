@@ -1,24 +1,33 @@
 {
+  "id": "./",
   "name": "Unisys — Corderies de la Koutoubia",
   "short_name": "Unisys",
-  "description": "Plateforme de gestion industrielle",
-  "start_url": "/",
+  "description": "Plateforme de pilotage industriel — Corderies de la Koutoubia",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#141414",
   "theme_color": "#0ea5e9",
-  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
