@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Unisys — Corderies de la Koutoubia",
+  "name": "Unisys",
   "short_name": "Unisys",
-  "description": "Plateforme de pilotage industriel — Corderies de la Koutoubia",
+  "description": "Plateforme de pilotage industriel",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
